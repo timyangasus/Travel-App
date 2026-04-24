@@ -28,7 +28,7 @@
   --mono: 'SF Mono', 'SFMono-Regular', ui-monospace, 'Menlo', 'Monaco', 'Courier New', monospace;
   --radius: 0px;
   --radius-sm: 0px;
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 34px);
   --safe-top: env(safe-area-inset-top, 0px);
 }
 

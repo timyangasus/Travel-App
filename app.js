@@ -529,14 +529,22 @@ function toggleCatDropdown() {
 
 function selectCat(label) {
   _selectedCat = label;
-  const cat = EXPENSE_CATS.find(c => c.label === label);
-  const iconSlot = document.getElementById('exp-cat-icon');
-  const labelEl  = document.getElementById('exp-cat-label');
-  if (cat && iconSlot && labelEl) {
-    iconSlot.innerHTML = cat.svg.replace(/height="\d+px"/, 'height="18px"').replace(/width="\d+px"/, 'width="18px"');
-    labelEl.textContent = cat.label;
-  }
+  const labelEl = document.getElementById('exp-cat-label');
+  if (labelEl) labelEl.textContent = label;
   document.getElementById('exp-cat-dropdown')?.classList.remove('open');
+}
+
+function openExpenseSheet() {
+  initCatDropdown();
+  _selectedCat = '餐飲';
+  const labelEl = document.getElementById('exp-cat-label');
+  if (labelEl) labelEl.textContent = '餐飲';
+  const amt = document.getElementById('exp-amount');
+  const nm  = document.getElementById('exp-name');
+  if (amt) amt.value = '';
+  if (nm)  nm.value  = '';
+  document.getElementById('modal-expense-sheet').classList.add('open');
+  setTimeout(() => document.getElementById('exp-amount')?.focus(), 340);
 }
 
 // Close dropdown on outside click
@@ -545,7 +553,6 @@ document.addEventListener('click', (e) => {
     document.getElementById('exp-cat-dropdown')?.classList.remove('open');
   }
 });
-
 
 const CATS = ['餐飲', '交通', '購物', '住宿', '票券', '其他'];
 let expenseDay = 0;
@@ -565,18 +572,6 @@ function renderExpenseDayTabs() {
 }
 
 function switchExpDay(i) { expenseDay = i; renderExpenseDayTabs(); renderExpenseList(); }
-
-function openExpenseSheet() {
-  initCatDropdown();
-  // 預設選餐飲
-  selectCat('餐飲');
-  const amt = document.getElementById('exp-amount');
-  const nm  = document.getElementById('exp-name');
-  if (amt) amt.value = '';
-  if (nm)  nm.value  = '';
-  document.getElementById('modal-expense-sheet').classList.add('open');
-  setTimeout(() => document.getElementById('exp-amount')?.focus(), 340);
-}
 
 function renderExpenseList() {
   const list  = document.getElementById('expense-list');

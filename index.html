@@ -360,7 +360,7 @@
         </div>
         <div class="set-field">
           <span class="set-field-label">日期</span>
-          <input class="set-field-val" id="set-trip-dates" placeholder="05/07-05/11" oninput="fmtTripDates(this)" onblur="saveSettings()">
+          <input class="set-field-val" id="set-trip-dates" placeholder="MM/DD-MM/DD" oninput="fmtTripDates(this)" onblur="saveSettings()">
         </div>
         <div class="set-field set-field-select" onclick="toggleCurrencyDropdown()">
           <span class="set-field-label">幣別</span>
@@ -372,10 +372,10 @@
             <select class="set-currency-select" id="set-currency" size="7" onchange="setCurrencyFromSelect()">
               <option value="TWD">NT$　新台幣</option>
               <option value="JPY">¥　日圓</option>
-              <option value="CNY">CN¥　人民幣</option>
-              <option value="HKD">HK$　港幣</option>
               <option value="USD">$　美金</option>
               <option value="EUR">€　歐元</option>
+              <option value="HKD">HK$　港幣</option>
+              <option value="CNY">CN¥　人民幣</option>
               <option value="THB">฿　泰銖</option>
             </select>
           </div>
@@ -474,8 +474,7 @@
         <span class="fsheet-label">類別</span>
         <div class="exp-cat-wrap" id="exp-cat-wrap" style="flex:1;display:flex;justify-content:flex-end;align-items:center">
           <button class="exp-sheet-cat-btn" id="exp-cat-btn" onclick="toggleCatDropdown()" type="button">
-            <span id="exp-cat-icon" class="exp-cat-icon-slot"></span>
-            <span id="exp-cat-label" style="font-family:var(--mono);font-size:20px;font-weight:700">類別</span>
+            <span id="exp-cat-label" style="font-family:var(--mono);font-size:20px;font-weight:700">餐飲</span>
             <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px"><path fill="#9CA3AF" d="M7 10l5 5 5-5z"/></svg>
           </button>
           <div class="exp-cat-dropdown" id="exp-cat-dropdown"></div>
