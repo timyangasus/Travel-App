@@ -38,49 +38,31 @@
   <!-- ═══ EXPENSE ═══ -->
   <div id="screen-expense" class="screen">
     <div class="screen-header">
-      <div style="display:flex; align-items:baseline; justify-content:space-between; padding: 10px 16px 0;">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding: 10px 20px 0;">
         <div class="screen-title">記帳</div>
+        <button class="sub-header-action" onclick="openExpenseSheet()">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+        </button>
       </div>
-      <div class="day-tabs-wrap" style="border-bottom:none; padding:0 16px;">
+      <div class="day-tabs-wrap" style="border-bottom:none; padding:0 20px;">
         <div class="day-tabs-header">
           <span class="day-tabs-label">DAY</span>
         </div>
         <div class="day-tabs" id="expense-day-tabs"></div>
       </div>
     </div>
-    <div style="padding:0 16px 16px">
+    <div style="padding:0 28px 16px">
       <div class="expense-total-card">
-        <div>
-          <div class="expense-total-label">當日合計</div>
-          <div class="expense-total-sub" id="expense-count">0 筆記錄</div>
+        <div class="expense-total-meta">
+          <span class="expense-total-label">當日合計</span>
         </div>
-        <div style="text-align:right">
-          <div class="expense-total-amount" id="expense-total">0</div>
-          <div class="expense-trip-total-row">
-            <span class="expense-trip-label">旅行總計</span>
-            <span class="expense-trip-amount" id="expense-trip-total">0</span>
-          </div>
+        <div class="expense-total-amount" id="expense-total">0</div>
+        <div class="expense-trip-total-row">
+          <span class="expense-count-label" id="expense-count">0 筆記錄</span>
+          <span class="expense-trip-label">旅行總計</span>
+          <span class="expense-trip-amount" id="expense-trip-total">0</span>
         </div>
       </div>
-    </div>
-    <div class="expense-input-card">
-      <div class="expense-add-row">
-        <div class="exp-cat-wrap" id="exp-cat-wrap">
-          <button class="expense-input expense-cat-btn" id="exp-cat-btn" onclick="toggleCatDropdown()" type="button">
-            <span id="exp-cat-icon" class="exp-cat-icon-slot"></span>
-            <span id="exp-cat-label">類別</span>
-            <svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 0 24 24" width="14px" style="margin-left:auto;flex-shrink:0"><path fill="#9CA3AF" d="M7 10l5 5 5-5z"/></svg>
-          </button>
-          <div class="exp-cat-dropdown" id="exp-cat-dropdown"></div>
-        </div>
-        <input class="expense-input expense-input-amount" id="exp-amount" placeholder="金額" type="number" inputmode="decimal">
-      </div>
-      <div class="expense-add-row">
-        <input class="expense-input exp-name-input" id="exp-name" placeholder="品項說明（選填）" type="text">
-      </div>
-      <button class="expense-submit-btn" onclick="addExpense()">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#fff"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
-      </button>
     </div>
     <div class="expense-list" id="expense-list"></div>
   </div>
@@ -479,6 +461,43 @@
   </nav>
 
 </div><!-- /#app -->
+
+<!-- ═══ EXPENSE SHEET ═══ -->
+<div class="modal-overlay" id="modal-expense-sheet">
+  <div class="modal-sheet">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0">
+      <span class="modal-title" style="padding:0">新增記帳</span>
+      <button onclick="closeModal('modal-expense-sheet')" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-secondary)">×</button>
+    </div>
+    <div style="padding:0">
+      <div class="fsheet-row">
+        <span class="fsheet-label">類別</span>
+        <div class="exp-cat-wrap" id="exp-cat-wrap" style="flex:1;display:flex;justify-content:flex-end;align-items:center">
+          <button class="exp-sheet-cat-btn" id="exp-cat-btn" onclick="toggleCatDropdown()" type="button">
+            <span id="exp-cat-icon" class="exp-cat-icon-slot"></span>
+            <span id="exp-cat-label" style="font-family:var(--mono);font-size:20px;font-weight:700">類別</span>
+            <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px"><path fill="#9CA3AF" d="M7 10l5 5 5-5z"/></svg>
+          </button>
+          <div class="exp-cat-dropdown" id="exp-cat-dropdown"></div>
+        </div>
+      </div>
+      <div class="fsheet-row">
+        <span class="fsheet-label">金額</span>
+        <input class="fsheet-input" id="exp-amount" placeholder="" type="number" inputmode="decimal">
+      </div>
+      <div class="fsheet-row">
+        <span class="fsheet-label">備注</span>
+        <input class="fsheet-input" id="exp-name" placeholder="">
+      </div>
+      <div style="padding:16px 20px">
+        <div class="modal-btn-row" style="padding:0">
+          <button class="modal-btn modal-btn-cancel" onclick="closeModal('modal-expense-sheet')">取消</button>
+          <button class="modal-btn modal-btn-save" onclick="addExpense()">加入</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ═══ EVENT MODAL ═══ -->
 <div class="modal-overlay" id="modal-event">

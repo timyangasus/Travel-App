@@ -405,119 +405,111 @@ html, body {
   padding: 0 16px;
 }
 .expense-total-card {
-  background: #fff;
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px 22px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  padding: 8px 0 16px;
+}
+.expense-total-meta {
+  text-align: right;
+  margin-bottom: 4px;
 }
 .expense-total-label {
   font-size: 13px;
   color: var(--text-secondary);
   font-family: var(--mono);
 }
-.expense-total-sub {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  font-family: var(--mono);
-  margin-top: 3px;
-}
 .expense-total-amount {
-  font-size: 36px;
+  font-size: 56px;
   font-weight: 700;
-  letter-spacing: -1.5px;
+  letter-spacing: -2px;
   color: var(--accent);
   font-family: var(--mono);
   line-height: 1;
+  text-align: right;
 }
 .expense-trip-total-row {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 6px;
-  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 0.5px solid var(--border-thin);
 }
-.expense-trip-label {
-  font-size: 11px;
+.expense-count-label {
+  font-size: 12px;
   color: var(--text-tertiary);
   font-family: var(--mono);
-  letter-spacing: 0.04em;
+  flex: 1;
+}
+.expense-trip-label {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-family: var(--mono);
 }
 .expense-trip-amount {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-secondary);
   font-family: var(--mono);
 }
-.expense-row-cat-only {
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.expense-input-card {
-  margin: 0 16px 28px;
-  background: #fff;
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 16px 20px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  position: relative;
-}
-.expense-add-row {
+/* New expense row */
+.exp-row {
   display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 28px;
+  border-bottom: 0.5px solid var(--border-thin);
 }
-.expense-add-row:last-of-type { margin-bottom: 0; }
-.expense-header-total {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--accent);
-  font-family: var(--mono);
-  opacity: 0.8;
+.exp-row-icon {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
 }
-.expense-input {
-  background: #F3F4F6;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 14px 14px;
-  font-family: var(--mono);
-  font-size: 15px;
-  color: var(--text-primary);
-  outline: none;
-  transition: background 0.15s;
-  height: 52px;
-  box-sizing: border-box;
+.exp-row-icon svg path { fill: #fff !important; }
+.exp-row-label {
   flex: 1;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--text-primary);
 }
-.expense-input:focus { background: #E9EBF0; }
-.expense-input::placeholder { color: var(--text-tertiary); font-family: var(--mono); }
-.exp-cat-wrap { position: relative; flex: 1; }
-.expense-cat-btn {
-  width: 100%;
+.exp-row-amt {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-family: var(--mono);
+  letter-spacing: -0.3px;
+}
+.exp-row-del {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #C0C0C0;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.exp-row-del:active { color: var(--danger); }
+.expense-list { padding: 0; margin-top: 28px; }
+/* Sheet cat button */
+.exp-sheet-cat-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  cursor: pointer;
-  text-align: left;
-  background: #F3F4F6;
-  border: none;
   font-family: var(--mono);
-  font-size: 15px;
-  color: var(--text-primary);
 }
-.exp-cat-icon-slot { display: flex; align-items: center; flex-shrink: 0; width: 20px; }
+.exp-cat-wrap { position: relative; }
 .exp-cat-dropdown {
   display: none;
   position: absolute;
   top: calc(100% + 6px);
-  left: 0;
+  right: 0;
   background: #fff;
   border: 0.5px solid var(--border);
-  border-radius: var(--radius-sm);
   box-shadow: 0 8px 24px rgba(0,0,0,0.12);
   z-index: 200;
   min-width: 160px;
@@ -538,59 +530,7 @@ html, body {
 .exp-cat-option:active { background: var(--accent-light); }
 .exp-cat-opt-icon { display: flex; align-items: center; flex-shrink: 0; }
 .exp-cat-opt-label { flex: 1; }
-.expense-input-amount { flex: 1; }
-.exp-name-input { flex: 1; width: 100%; }
-.expense-submit-btn {
-  position: absolute;
-  bottom: -20px;
-  right: 20px;
-  background: var(--accent);
-  border: none;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 16px rgba(26,86,219,0.35);
-  transition: transform 0.15s, opacity 0.15s;
-}
-.expense-submit-btn:active { transform: scale(0.92); opacity: 0.85; }
-.expense-list { padding: 8px 16px 20px; }
-.expense-section-title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  padding: 4px 0 10px;
-}
-.expense-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  margin-bottom: 8px;
-  animation: fadeInUp 0.2s ease both;
-}
-.expense-row-icon { font-size: 20px; flex-shrink: 0; }
-.expense-row-name { flex: 1; font-size: 14px; font-weight: 600; font-family: var(--mono); }
-.expense-row-amount { font-size: 15px; font-weight: 700; color: var(--accent); min-width: 60px; text-align: right; font-family: var(--mono); }
-.expense-row-del {
-  background: none;
-  border: none;
-  color: var(--text-tertiary);
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 2px;
-}
-.expense-row-del svg { width: 20px; height: 20px; }
-.expense-row-del svg path { fill: #9CA3AF; }
+.exp-cat-icon-slot { display: flex; align-items: center; flex-shrink: 0; }
 
 /* ═══════════════════════════════════════
    INFO SCREEN
