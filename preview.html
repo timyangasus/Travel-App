@@ -41,7 +41,7 @@
   --mono: 'SF Mono', 'SFMono-Regular', ui-monospace, 'Menlo', 'Monaco', 'Courier New', monospace;
   --radius: 0px;
   --radius-sm: 0px;
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
   --safe-top: env(safe-area-inset-top, 0px);
 }
 
@@ -70,8 +70,7 @@ html, body {
 #tab-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  height: calc(56px + var(--safe-bottom));
-  background: rgba(248, 249, 250, 0.92);
+  background: rgba(248, 249, 250, 0.95);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border-top: 0.5px solid var(--border);
@@ -79,6 +78,7 @@ html, body {
   align-items: flex-start;
   justify-content: space-around;
   padding-top: 10px;
+  padding-bottom: env(safe-area-inset-bottom, 20px);
   z-index: 100;
 }
 .tab-btn {
@@ -418,119 +418,111 @@ html, body {
   padding: 0 16px;
 }
 .expense-total-card {
-  background: #fff;
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px 22px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  padding: 8px 0 16px;
+}
+.expense-total-meta {
+  text-align: right;
+  margin-bottom: 4px;
 }
 .expense-total-label {
   font-size: 13px;
   color: var(--text-secondary);
   font-family: var(--mono);
 }
-.expense-total-sub {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  font-family: var(--mono);
-  margin-top: 3px;
-}
 .expense-total-amount {
-  font-size: 36px;
+  font-size: 56px;
   font-weight: 700;
-  letter-spacing: -1.5px;
+  letter-spacing: -2px;
   color: var(--accent);
   font-family: var(--mono);
   line-height: 1;
+  text-align: right;
 }
 .expense-trip-total-row {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 6px;
-  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 0.5px solid var(--border-thin);
 }
-.expense-trip-label {
-  font-size: 11px;
+.expense-count-label {
+  font-size: 12px;
   color: var(--text-tertiary);
   font-family: var(--mono);
-  letter-spacing: 0.04em;
+  flex: 1;
+}
+.expense-trip-label {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-family: var(--mono);
 }
 .expense-trip-amount {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-secondary);
   font-family: var(--mono);
 }
-.expense-row-cat-only {
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.expense-input-card {
-  margin: 0 16px 28px;
-  background: #fff;
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 16px 20px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  position: relative;
-}
-.expense-add-row {
+/* New expense row */
+.exp-row {
   display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 28px;
+  border-bottom: 0.5px solid var(--border-thin);
 }
-.expense-add-row:last-of-type { margin-bottom: 0; }
-.expense-header-total {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--accent);
-  font-family: var(--mono);
-  opacity: 0.8;
+.exp-row-icon {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
 }
-.expense-input {
-  background: #F3F4F6;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 14px 14px;
-  font-family: var(--mono);
-  font-size: 15px;
-  color: var(--text-primary);
-  outline: none;
-  transition: background 0.15s;
-  height: 52px;
-  box-sizing: border-box;
+.exp-row-icon svg path { fill: #fff !important; }
+.exp-row-label {
   flex: 1;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--text-primary);
 }
-.expense-input:focus { background: #E9EBF0; }
-.expense-input::placeholder { color: var(--text-tertiary); font-family: var(--mono); }
-.exp-cat-wrap { position: relative; flex: 1; }
-.expense-cat-btn {
-  width: 100%;
+.exp-row-amt {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-family: var(--mono);
+  letter-spacing: -0.3px;
+}
+.exp-row-del {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #C0C0C0;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.exp-row-del:active { color: var(--danger); }
+.expense-list { padding: 0; margin-top: 28px; }
+/* Sheet cat button */
+.exp-sheet-cat-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  cursor: pointer;
-  text-align: left;
-  background: #F3F4F6;
-  border: none;
   font-family: var(--mono);
-  font-size: 15px;
-  color: var(--text-primary);
 }
-.exp-cat-icon-slot { display: flex; align-items: center; flex-shrink: 0; width: 20px; }
+.exp-cat-wrap { position: relative; }
 .exp-cat-dropdown {
   display: none;
   position: absolute;
   top: calc(100% + 6px);
-  left: 0;
+  right: 0;
   background: #fff;
   border: 0.5px solid var(--border);
-  border-radius: var(--radius-sm);
   box-shadow: 0 8px 24px rgba(0,0,0,0.12);
   z-index: 200;
   min-width: 160px;
@@ -551,59 +543,7 @@ html, body {
 .exp-cat-option:active { background: var(--accent-light); }
 .exp-cat-opt-icon { display: flex; align-items: center; flex-shrink: 0; }
 .exp-cat-opt-label { flex: 1; }
-.expense-input-amount { flex: 1; }
-.exp-name-input { flex: 1; width: 100%; }
-.expense-submit-btn {
-  position: absolute;
-  bottom: -20px;
-  right: 20px;
-  background: var(--accent);
-  border: none;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 16px rgba(26,86,219,0.35);
-  transition: transform 0.15s, opacity 0.15s;
-}
-.expense-submit-btn:active { transform: scale(0.92); opacity: 0.85; }
-.expense-list { padding: 8px 16px 20px; }
-.expense-section-title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  padding: 4px 0 10px;
-}
-.expense-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  margin-bottom: 8px;
-  animation: fadeInUp 0.2s ease both;
-}
-.expense-row-icon { font-size: 20px; flex-shrink: 0; }
-.expense-row-name { flex: 1; font-size: 14px; font-weight: 600; font-family: var(--mono); }
-.expense-row-amount { font-size: 15px; font-weight: 700; color: var(--accent); min-width: 60px; text-align: right; font-family: var(--mono); }
-.expense-row-del {
-  background: none;
-  border: none;
-  color: var(--text-tertiary);
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 2px;
-}
-.expense-row-del svg { width: 20px; height: 20px; }
-.expense-row-del svg path { fill: #9CA3AF; }
+.exp-cat-icon-slot { display: flex; align-items: center; flex-shrink: 0; }
 
 /* ═══════════════════════════════════════
    INFO SCREEN
@@ -1787,49 +1727,31 @@ html, body {
   <!-- ═══ EXPENSE ═══ -->
   <div id="screen-expense" class="screen">
     <div class="screen-header">
-      <div style="display:flex; align-items:baseline; justify-content:space-between; padding: 10px 16px 0;">
-        <div class="screen-title">記帳</div>
+      <div class="sub-header" style="padding: 0 4px 0 20px;">
+        <div class="screen-title" style="flex:1">記帳</div>
+        <button class="sub-header-action" onclick="openExpenseSheet()">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+        </button>
       </div>
-      <div class="day-tabs-wrap" style="border-bottom:none; padding:0 16px;">
+      <div class="day-tabs-wrap" style="border-bottom:none; padding:0 20px;">
         <div class="day-tabs-header">
           <span class="day-tabs-label">DAY</span>
         </div>
         <div class="day-tabs" id="expense-day-tabs"></div>
       </div>
     </div>
-    <div style="padding:0 16px 16px">
+    <div style="padding:0 28px 16px">
       <div class="expense-total-card">
-        <div>
-          <div class="expense-total-label">當日合計</div>
-          <div class="expense-total-sub" id="expense-count">0 筆記錄</div>
+        <div class="expense-total-meta">
+          <span class="expense-total-label">當日合計</span>
         </div>
-        <div style="text-align:right">
-          <div class="expense-total-amount" id="expense-total">0</div>
-          <div class="expense-trip-total-row">
-            <span class="expense-trip-label">旅行總計</span>
-            <span class="expense-trip-amount" id="expense-trip-total">0</span>
-          </div>
+        <div class="expense-total-amount" id="expense-total">0</div>
+        <div class="expense-trip-total-row">
+          <span class="expense-count-label" id="expense-count">0 筆記錄</span>
+          <span class="expense-trip-label">旅行總計</span>
+          <span class="expense-trip-amount" id="expense-trip-total">0</span>
         </div>
       </div>
-    </div>
-    <div class="expense-input-card">
-      <div class="expense-add-row">
-        <div class="exp-cat-wrap" id="exp-cat-wrap">
-          <button class="expense-input expense-cat-btn" id="exp-cat-btn" onclick="toggleCatDropdown()" type="button">
-            <span id="exp-cat-icon" class="exp-cat-icon-slot"></span>
-            <span id="exp-cat-label">類別</span>
-            <svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 0 24 24" width="14px" style="margin-left:auto;flex-shrink:0"><path fill="#9CA3AF" d="M7 10l5 5 5-5z"/></svg>
-          </button>
-          <div class="exp-cat-dropdown" id="exp-cat-dropdown"></div>
-        </div>
-        <input class="expense-input expense-input-amount" id="exp-amount" placeholder="金額" type="number" inputmode="decimal">
-      </div>
-      <div class="expense-add-row">
-        <input class="expense-input exp-name-input" id="exp-name" placeholder="品項說明（選填）" type="text">
-      </div>
-      <button class="expense-submit-btn" onclick="addExpense()">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#fff"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
-      </button>
     </div>
     <div class="expense-list" id="expense-list"></div>
   </div>
@@ -2127,7 +2049,7 @@ html, body {
         </div>
         <div class="set-field">
           <span class="set-field-label">日期</span>
-          <input class="set-field-val" id="set-trip-dates" placeholder="05/07-05/11" oninput="fmtTripDates(this)" onblur="saveSettings()">
+          <input class="set-field-val" id="set-trip-dates" placeholder="MM/DD-MM/DD" oninput="fmtTripDates(this)" onblur="saveSettings()">
         </div>
         <div class="set-field set-field-select" onclick="toggleCurrencyDropdown()">
           <span class="set-field-label">幣別</span>
@@ -2139,10 +2061,10 @@ html, body {
             <select class="set-currency-select" id="set-currency" size="7" onchange="setCurrencyFromSelect()">
               <option value="TWD">NT$　新台幣</option>
               <option value="JPY">¥　日圓</option>
-              <option value="CNY">CN¥　人民幣</option>
-              <option value="HKD">HK$　港幣</option>
               <option value="USD">$　美金</option>
               <option value="EUR">€　歐元</option>
+              <option value="HKD">HK$　港幣</option>
+              <option value="CNY">CN¥　人民幣</option>
               <option value="THB">฿　泰銖</option>
             </select>
           </div>
@@ -2228,6 +2150,42 @@ html, body {
   </nav>
 
 </div><!-- /#app -->
+
+<!-- ═══ EXPENSE SHEET ═══ -->
+<div class="modal-overlay" id="modal-expense-sheet">
+  <div class="modal-sheet">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0">
+      <span class="modal-title" style="padding:0">新增記帳</span>
+      <button onclick="closeModal('modal-expense-sheet')" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-secondary)">×</button>
+    </div>
+    <div style="padding:0">
+      <div class="fsheet-row">
+        <span class="fsheet-label">類別</span>
+        <div class="exp-cat-wrap" id="exp-cat-wrap" style="flex:1;display:flex;justify-content:flex-end;align-items:center">
+          <button class="exp-sheet-cat-btn" id="exp-cat-btn" onclick="toggleCatDropdown()" type="button">
+            <span id="exp-cat-label" style="font-family:var(--mono);font-size:20px;font-weight:700">餐飲</span>
+            <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px"><path fill="#9CA3AF" d="M7 10l5 5 5-5z"/></svg>
+          </button>
+          <div class="exp-cat-dropdown" id="exp-cat-dropdown"></div>
+        </div>
+      </div>
+      <div class="fsheet-row">
+        <span class="fsheet-label">金額</span>
+        <input class="fsheet-input" id="exp-amount" placeholder="" type="number" inputmode="decimal">
+      </div>
+      <div class="fsheet-row">
+        <span class="fsheet-label">備注</span>
+        <input class="fsheet-input" id="exp-name" placeholder="">
+      </div>
+      <div style="padding:16px 20px">
+        <div class="modal-btn-row" style="padding:0">
+          <button class="modal-btn modal-btn-cancel" onclick="closeModal('modal-expense-sheet')">取消</button>
+          <button class="modal-btn modal-btn-save" onclick="addExpense()">加入</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ═══ EVENT MODAL ═══ -->
 <div class="modal-overlay" id="modal-event">
@@ -2850,14 +2808,22 @@ function toggleCatDropdown() {
 
 function selectCat(label) {
   _selectedCat = label;
-  const cat = EXPENSE_CATS.find(c => c.label === label);
-  const iconSlot = document.getElementById('exp-cat-icon');
-  const labelEl  = document.getElementById('exp-cat-label');
-  if (cat && iconSlot && labelEl) {
-    iconSlot.innerHTML = cat.svg.replace(/height="\d+px"/, 'height="18px"').replace(/width="\d+px"/, 'width="18px"');
-    labelEl.textContent = cat.label;
-  }
+  const labelEl = document.getElementById('exp-cat-label');
+  if (labelEl) labelEl.textContent = label;
   document.getElementById('exp-cat-dropdown')?.classList.remove('open');
+}
+
+function openExpenseSheet() {
+  initCatDropdown();
+  _selectedCat = '餐飲';
+  const labelEl = document.getElementById('exp-cat-label');
+  if (labelEl) labelEl.textContent = '餐飲';
+  const amt = document.getElementById('exp-amount');
+  const nm  = document.getElementById('exp-name');
+  if (amt) amt.value = '';
+  if (nm)  nm.value  = '';
+  document.getElementById('modal-expense-sheet').classList.add('open');
+  setTimeout(() => document.getElementById('exp-amount')?.focus(), 340);
 }
 
 // Close dropdown on outside click
@@ -2867,7 +2833,6 @@ document.addEventListener('click', (e) => {
   }
 });
 
-
 const CATS = ['餐飲', '交通', '購物', '住宿', '票券', '其他'];
 let expenseDay = 0;
 
@@ -2875,7 +2840,6 @@ function renderExpense() {
   expenseDay = Math.min(expenseDay, data.days.length - 1);
   renderExpenseDayTabs();
   renderExpenseList();
-  setTimeout(initCatDropdown, 0);
 }
 
 function renderExpenseDayTabs() {
@@ -2887,7 +2851,6 @@ function renderExpenseDayTabs() {
 }
 
 function switchExpDay(i) { expenseDay = i; renderExpenseDayTabs(); renderExpenseList(); }
-function fillCat(c) { document.getElementById('exp-cat').value = c; }
 
 function renderExpenseList() {
   const list  = document.getElementById('expense-list');
@@ -2899,37 +2862,26 @@ function renderExpenseList() {
 
   const allTotal = data.expenses.reduce((s, day) =>
     s + day.reduce((ds, i) => ds + parseFloat(i.amount || 0), 0), 0);
-  const hdr = document.getElementById('expense-header-total');
-  if (hdr) hdr.textContent = allTotal > 0 ? `合計 ${sym} ${allTotal.toLocaleString()}` : '';
   const tripEl = document.getElementById('expense-trip-total');
   if (tripEl) tripEl.textContent = `${sym} ${allTotal.toLocaleString()}`;
 
-  // 更新金額輸入框 placeholder
-  const amtInput = document.getElementById('exp-amount');
-  if (amtInput) amtInput.placeholder = sym;
-
   if (!items.length) {
-    list.innerHTML = `<div class="expense-section-title">明細</div>
-      <div style="text-align:center;padding:30px 0;color:var(--text-tertiary);font-size:13px">尚無記錄</div>`;
+    list.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--text-tertiary);font-size:13px;font-family:var(--mono)">尚無記錄</div>`;
     return;
   }
-  const countLabel = items.length > 0 ? `支出明細（${items.length} 筆）` : '支出明細';
-  list.innerHTML = `<div class="expense-section-title">${countLabel}</div>` +
-    [...items].reverse().map((item, i) => {
-      const catObj  = (typeof EXPENSE_CATS !== 'undefined') ? EXPENSE_CATS.find(c => c.label === item.cat) : null;
-      const catText = item.cat || '其他';
-      const hasDesc = !!item.name;
-      const iconSvg = catObj ? catObj.svg.replace(/height="\d+px"/, 'height="20px"').replace(/width="\d+px"/, 'width="20px"') : '';
-      const left = hasDesc
-        ? `<div class="expense-row-icon">${iconSvg}</div><div class="expense-row-name">${esc(item.name)}</div>`
-        : `<div class="expense-row-icon">${iconSvg}</div><div class="expense-row-name">${esc(catText)}</div>`;
-      return `
-        <div class="expense-row" style="animation-delay:${i * 0.04}s">
-          ${left}
-          <div class="expense-row-amount">${sym} ${parseFloat(item.amount).toLocaleString()}</div>
-          <button class="expense-row-del" onclick="deleteExpense(${item.id})">${DEL_SVG}</button>
-        </div>`;
-    }).join('');
+  list.innerHTML = [...items].reverse().map((item, ri) => {
+    const catObj = (typeof EXPENSE_CATS !== 'undefined') ? EXPENSE_CATS.find(c => c.label === item.cat) : null;
+    const color  = catObj ? catObj.color : '#D1D5DB';
+    const iconSvg = catObj ? catObj.svg.replace(/height="\d+px"/, 'height="20px"').replace(/width="\d+px"/, 'width="20px"') : '';
+    const label  = item.name || item.cat || '其他';
+    return `
+      <div class="exp-row">
+        <div class="exp-row-icon" style="background:${color}">${iconSvg}</div>
+        <div class="exp-row-label">${esc(label)}</div>
+        <div class="exp-row-amt">${sym}&nbsp;${parseFloat(item.amount).toLocaleString()}</div>
+        <button class="exp-row-del" onclick="deleteExpense(${item.id})">×</button>
+      </div>`;
+  }).join('');
 }
 
 function addExpense() {
@@ -2939,13 +2891,7 @@ function addExpense() {
   if (!amount) return;
   data.expenses[expenseDay].push({ id: Date.now(), name, amount: parseFloat(amount), cat });
   save();
-  document.getElementById('exp-name').value   = '';
-  document.getElementById('exp-amount').value = '';
-  _selectedCat = null;
-  const iconSlot = document.getElementById('exp-cat-icon');
-  const labelEl  = document.getElementById('exp-cat-label');
-  if (iconSlot) iconSlot.innerHTML = '';
-  if (labelEl)  labelEl.textContent = '類別';
+  closeModal('modal-expense-sheet');
   renderExpenseList();
 }
 

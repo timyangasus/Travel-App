@@ -28,7 +28,7 @@
   --mono: 'SF Mono', 'SFMono-Regular', ui-monospace, 'Menlo', 'Monaco', 'Courier New', monospace;
   --radius: 0px;
   --radius-sm: 0px;
-  --safe-bottom: env(safe-area-inset-bottom, 34px);
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
   --safe-top: env(safe-area-inset-top, 0px);
 }
 
@@ -57,8 +57,7 @@ html, body {
 #tab-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  height: calc(56px + var(--safe-bottom));
-  background: rgba(248, 249, 250, 0.92);
+  background: rgba(248, 249, 250, 0.95);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border-top: 0.5px solid var(--border);
@@ -66,6 +65,7 @@ html, body {
   align-items: flex-start;
   justify-content: space-around;
   padding-top: 10px;
+  padding-bottom: env(safe-area-inset-bottom, 20px);
   z-index: 100;
 }
 .tab-btn {
