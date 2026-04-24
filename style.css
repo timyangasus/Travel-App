@@ -64,8 +64,7 @@ html, body {
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
-  padding-top: 10px;
-  padding-bottom: env(safe-area-inset-bottom, 20px);
+  padding: 10px 0 34px;
   z-index: 100;
 }
 .tab-btn {
@@ -417,8 +416,8 @@ html, body {
   font-family: var(--mono);
 }
 .expense-total-amount {
-  font-size: 56px;
-  font-weight: 700;
+  font-size: 44px;
+  font-weight: 400;
   letter-spacing: -2px;
   color: var(--accent);
   font-family: var(--mono);
@@ -573,6 +572,11 @@ html, body {
   justify-content: center;
 }
 [data-theme='dark'] .info-grid-btn { color: var(--text-primary); }
+.info-grid-icon svg path {
+  stroke: #1A1A1A;
+  stroke-width: 12;
+  paint-order: stroke fill;
+}
 [data-theme='dark'] .info-grid-btn svg path,
 [data-theme='dark'] .info-grid-btn svg rect,
 [data-theme='dark'] .info-grid-btn svg circle { fill: var(--text-primary) !important; }

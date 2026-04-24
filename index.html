@@ -38,18 +38,18 @@
   <!-- ═══ EXPENSE ═══ -->
   <div id="screen-expense" class="screen">
     <div class="screen-header">
-      <div class="sub-header" style="padding: 0 4px 0 20px;">
+      <div style="display:flex;align-items:center;padding: 0 20px 14px;">
         <div class="screen-title" style="flex:1">記帳</div>
-        <button class="sub-header-action" onclick="openExpenseSheet()">
+        <button class="sub-header-action" onclick="openExpenseSheet()" style="color:var(--accent)">
           <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
         </button>
       </div>
-      <div class="day-tabs-wrap" style="border-bottom:none; padding:0 20px;">
-        <div class="day-tabs-header">
-          <span class="day-tabs-label">DAY</span>
-        </div>
-        <div class="day-tabs" id="expense-day-tabs"></div>
+    </div>
+    <div class="day-tabs-wrap" style="border-bottom: 0.5px solid var(--border-thin); padding:0 20px;">
+      <div class="day-tabs-header">
+        <span class="day-tabs-label">DAY</span>
       </div>
+      <div class="day-tabs" id="expense-day-tabs"></div>
     </div>
     <div style="padding:0 28px 16px">
       <div class="expense-total-card">
@@ -70,7 +70,7 @@
   <!-- ═══ INFO HUB ═══ -->
   <div id="screen-info" class="screen">
     <div class="screen-header">
-      <div style="padding: 10px 16px 0">
+      <div style="padding: 0 20px 14px">
         <div class="screen-title">旅遊資訊</div>
       </div>
     </div>
@@ -347,7 +347,7 @@
   <!-- ═══ SETTINGS ═══ -->
   <div id="screen-settings" class="screen">
     <div class="screen-header">
-      <div style="padding: 10px 20px 0">
+      <div style="padding: 0 20px 14px">
         <div class="screen-title">設定</div>
       </div>
     </div>
@@ -474,7 +474,7 @@
         <span class="fsheet-label">類別</span>
         <div class="exp-cat-wrap" id="exp-cat-wrap" style="flex:1;display:flex;justify-content:flex-end;align-items:center">
           <button class="exp-sheet-cat-btn" id="exp-cat-btn" onclick="toggleCatDropdown()" type="button">
-            <span id="exp-cat-label" style="font-family:var(--mono);font-size:20px;font-weight:700">餐飲</span>
+            <span id="exp-cat-label" style="font-family:var(--mono);font-size:20px;font-weight:700;color:#000">餐飲</span>
             <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px"><path fill="#9CA3AF" d="M7 10l5 5 5-5z"/></svg>
           </button>
           <div class="exp-cat-dropdown" id="exp-cat-dropdown"></div>
