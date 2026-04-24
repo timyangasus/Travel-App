@@ -593,11 +593,11 @@ function renderExpenseList() {
   list.innerHTML = [...items].reverse().map((item, ri) => {
     const catObj = (typeof EXPENSE_CATS !== 'undefined') ? EXPENSE_CATS.find(c => c.label === item.cat) : null;
     const color  = catObj ? catObj.color : '#D1D5DB';
-    const iconSvg = catObj ? catObj.svg.replace(/height="\d+px"/, 'height="20px"').replace(/width="\d+px"/, 'width="20px"') : '';
+    const iconSvg = catObj ? catObj.svg.replace(/height="\d+px"/, 'height="22px"').replace(/width="\d+px"/, 'width="22px"') : '';
     const label  = item.name || item.cat || '其他';
     return `
       <div class="exp-row">
-        <div class="exp-row-icon" style="background:${color}">${iconSvg}</div>
+        <div class="exp-row-icon">${iconSvg}</div>
         <div class="exp-row-label">${esc(label)}</div>
         <div class="exp-row-amt">${sym}&nbsp;${parseFloat(item.amount).toLocaleString()}</div>
         <button class="exp-row-del" onclick="deleteExpense(${item.id})">×</button>

@@ -70,15 +70,12 @@ html, body {
 #tab-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  background: rgba(248, 249, 250, 0.95);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-top: 0.5px solid var(--border);
+  background: #fff;
+  border-top: 1px solid #E0E0E0;
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
-  padding-top: 10px;
-  padding-bottom: env(safe-area-inset-bottom, 20px);
+  padding: 10px 0 34px;
   z-index: 100;
 }
 .tab-btn {
@@ -109,7 +106,7 @@ html, body {
 .screen {
   position: absolute;
   inset: 0;
-  padding-bottom: calc(56px + var(--safe-bottom));
+  padding-bottom: calc(88px + var(--safe-bottom));
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -117,11 +114,7 @@ html, body {
   background: var(--bg);
 }
 .screen.active { display: block; }
-
-/* ═══════════════════════════════════════
-   ITINERARY SCREEN
-═══════════════════════════════════════ */
-#screen-itinerary { padding-bottom: calc(64px + var(--safe-bottom)); }
+#screen-itinerary { padding-bottom: calc(88px + var(--safe-bottom)); }
 
 /* Banner */
 .day-banner {
@@ -430,8 +423,8 @@ html, body {
   font-family: var(--mono);
 }
 .expense-total-amount {
-  font-size: 56px;
-  font-weight: 700;
+  font-size: 44px;
+  font-weight: 400;
   letter-spacing: -2px;
   color: var(--accent);
   font-family: var(--mono);
@@ -472,12 +465,10 @@ html, body {
   border-bottom: 0.5px solid var(--border-thin);
 }
 .exp-row-icon {
-  width: 36px; height: 36px;
-  border-radius: 50%;
+  width: 28px; height: 28px;
   flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
 }
-.exp-row-icon svg path { fill: #fff !important; }
 .exp-row-label {
   flex: 1;
   font-size: 16px;
@@ -586,6 +577,11 @@ html, body {
   justify-content: center;
 }
 [data-theme='dark'] .info-grid-btn { color: var(--text-primary); }
+.info-grid-icon svg path {
+  stroke: #1A1A1A;
+  stroke-width: 12;
+  paint-order: stroke fill;
+}
 [data-theme='dark'] .info-grid-btn svg path,
 [data-theme='dark'] .info-grid-btn svg rect,
 [data-theme='dark'] .info-grid-btn svg circle { fill: var(--text-primary) !important; }
@@ -828,7 +824,7 @@ html, body {
   transition: opacity 0.1s;
 }
 .fc:first-child { margin-top: 30px; }
-.fc + .fc { margin-top: 10px; }
+.fc + .fc { margin-top: 0; border-top: 1px solid #000; }
 .fc:active { opacity: 0.8; }
 .fc-top { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
 .fc-airline { font-size: 13px; font-weight: 700; color: var(--text-primary); font-family: var(--mono); flex: 1; }
@@ -969,7 +965,7 @@ html, body {
   cursor: pointer;
   transition: opacity 0.1s;
 }
-.hotel-card2 + .hotel-card2 { margin-top: 10px; }
+.hotel-card2 + .hotel-card2 { margin-top: 0; border-top: 1px solid #000; }
 .hotel-card2:first-child { margin-top: 30px; }
 .hotel-card2:active { opacity: 0.8; }
 .hotel2-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -1363,6 +1359,7 @@ html, body {
 /* ─── Shopping List Cards (new) ─── */
 .sl-card { display: flex; border-bottom: 0.5px solid var(--border-thin); min-height: 200px; cursor: pointer; transition: opacity 0.15s; }
 .sl-card:first-child { margin-top: 30px; }
+.sl-card + .sl-card { border-top: 1px solid #000; }
 .sl-card.sl-done { opacity: 0.45; }
 .sl-addr { color: var(--accent) !important; cursor: pointer; }
 .sl-img-col { width: 46%; flex-shrink: 0; overflow: hidden; position: relative; background: #F3F4F6; }
@@ -1726,19 +1723,19 @@ html, body {
 
   <!-- ═══ EXPENSE ═══ -->
   <div id="screen-expense" class="screen">
-    <div class="screen-header">
-      <div class="sub-header" style="padding: 0 4px 0 20px;">
-        <div class="screen-title" style="flex:1">記帳</div>
-        <button class="sub-header-action" onclick="openExpenseSheet()">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
-        </button>
+    <div class="screen-header" style="position:relative">
+      <div style="padding: 0 20px 14px">
+        <div class="screen-title">記帳</div>
       </div>
-      <div class="day-tabs-wrap" style="border-bottom:none; padding:0 20px;">
-        <div class="day-tabs-header">
-          <span class="day-tabs-label">DAY</span>
-        </div>
-        <div class="day-tabs" id="expense-day-tabs"></div>
+      <button class="sub-header-action" onclick="openExpenseSheet()" style="position:absolute;right:4px;bottom:8px">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+      </button>
+    </div>
+    <div class="day-tabs-wrap" style="border-bottom: 0.5px solid var(--border-thin); padding:0 20px;">
+      <div class="day-tabs-header">
+        <span class="day-tabs-label">DAY</span>
       </div>
+      <div class="day-tabs" id="expense-day-tabs"></div>
     </div>
     <div style="padding:0 28px 16px">
       <div class="expense-total-card">
@@ -1759,7 +1756,7 @@ html, body {
   <!-- ═══ INFO HUB ═══ -->
   <div id="screen-info" class="screen">
     <div class="screen-header">
-      <div style="padding: 10px 16px 0">
+      <div style="padding: 0 20px 14px">
         <div class="screen-title">旅遊資訊</div>
       </div>
     </div>
@@ -2036,7 +2033,7 @@ html, body {
   <!-- ═══ SETTINGS ═══ -->
   <div id="screen-settings" class="screen">
     <div class="screen-header">
-      <div style="padding: 10px 20px 0">
+      <div style="padding: 0 20px 14px">
         <div class="screen-title">設定</div>
       </div>
     </div>
@@ -2163,7 +2160,7 @@ html, body {
         <span class="fsheet-label">類別</span>
         <div class="exp-cat-wrap" id="exp-cat-wrap" style="flex:1;display:flex;justify-content:flex-end;align-items:center">
           <button class="exp-sheet-cat-btn" id="exp-cat-btn" onclick="toggleCatDropdown()" type="button">
-            <span id="exp-cat-label" style="font-family:var(--mono);font-size:20px;font-weight:700">餐飲</span>
+            <span id="exp-cat-label" style="font-family:var(--mono);font-size:20px;font-weight:700;color:#000">餐飲</span>
             <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px"><path fill="#9CA3AF" d="M7 10l5 5 5-5z"/></svg>
           </button>
           <div class="exp-cat-dropdown" id="exp-cat-dropdown"></div>
@@ -2872,11 +2869,11 @@ function renderExpenseList() {
   list.innerHTML = [...items].reverse().map((item, ri) => {
     const catObj = (typeof EXPENSE_CATS !== 'undefined') ? EXPENSE_CATS.find(c => c.label === item.cat) : null;
     const color  = catObj ? catObj.color : '#D1D5DB';
-    const iconSvg = catObj ? catObj.svg.replace(/height="\d+px"/, 'height="20px"').replace(/width="\d+px"/, 'width="20px"') : '';
+    const iconSvg = catObj ? catObj.svg.replace(/height="\d+px"/, 'height="22px"').replace(/width="\d+px"/, 'width="22px"') : '';
     const label  = item.name || item.cat || '其他';
     return `
       <div class="exp-row">
-        <div class="exp-row-icon" style="background:${color}">${iconSvg}</div>
+        <div class="exp-row-icon">${iconSvg}</div>
         <div class="exp-row-label">${esc(label)}</div>
         <div class="exp-row-amt">${sym}&nbsp;${parseFloat(item.amount).toLocaleString()}</div>
         <button class="exp-row-del" onclick="deleteExpense(${item.id})">×</button>

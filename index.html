@@ -37,13 +37,13 @@
 
   <!-- ═══ EXPENSE ═══ -->
   <div id="screen-expense" class="screen">
-    <div class="screen-header">
-      <div style="display:flex;align-items:center;padding: 0 20px 14px;">
-        <div class="screen-title" style="flex:1">記帳</div>
-        <button class="sub-header-action" onclick="openExpenseSheet()" style="color:var(--accent)">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
-        </button>
+    <div class="screen-header" style="position:relative">
+      <div style="padding: 0 20px 14px">
+        <div class="screen-title">記帳</div>
       </div>
+      <button class="sub-header-action" onclick="openExpenseSheet()" style="position:absolute;right:4px;bottom:8px">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+      </button>
     </div>
     <div class="day-tabs-wrap" style="border-bottom: 0.5px solid var(--border-thin); padding:0 20px;">
       <div class="day-tabs-header">

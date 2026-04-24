@@ -57,10 +57,8 @@ html, body {
 #tab-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  background: rgba(248, 249, 250, 0.95);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-top: 0.5px solid var(--border);
+  background: #fff;
+  border-top: 1px solid #E0E0E0;
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
@@ -95,7 +93,7 @@ html, body {
 .screen {
   position: absolute;
   inset: 0;
-  padding-bottom: calc(56px + var(--safe-bottom));
+  padding-bottom: calc(88px + var(--safe-bottom));
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -103,11 +101,7 @@ html, body {
   background: var(--bg);
 }
 .screen.active { display: block; }
-
-/* ═══════════════════════════════════════
-   ITINERARY SCREEN
-═══════════════════════════════════════ */
-#screen-itinerary { padding-bottom: calc(64px + var(--safe-bottom)); }
+#screen-itinerary { padding-bottom: calc(88px + var(--safe-bottom)); }
 
 /* Banner */
 .day-banner {
@@ -458,12 +452,10 @@ html, body {
   border-bottom: 0.5px solid var(--border-thin);
 }
 .exp-row-icon {
-  width: 36px; height: 36px;
-  border-radius: 50%;
+  width: 28px; height: 28px;
   flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
 }
-.exp-row-icon svg path { fill: #fff !important; }
 .exp-row-label {
   flex: 1;
   font-size: 16px;
@@ -819,7 +811,7 @@ html, body {
   transition: opacity 0.1s;
 }
 .fc:first-child { margin-top: 30px; }
-.fc + .fc { margin-top: 10px; }
+.fc + .fc { margin-top: 0; border-top: 1px solid #000; }
 .fc:active { opacity: 0.8; }
 .fc-top { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
 .fc-airline { font-size: 13px; font-weight: 700; color: var(--text-primary); font-family: var(--mono); flex: 1; }
@@ -960,7 +952,7 @@ html, body {
   cursor: pointer;
   transition: opacity 0.1s;
 }
-.hotel-card2 + .hotel-card2 { margin-top: 10px; }
+.hotel-card2 + .hotel-card2 { margin-top: 0; border-top: 1px solid #000; }
 .hotel-card2:first-child { margin-top: 30px; }
 .hotel-card2:active { opacity: 0.8; }
 .hotel2-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -1354,6 +1346,7 @@ html, body {
 /* ─── Shopping List Cards (new) ─── */
 .sl-card { display: flex; border-bottom: 0.5px solid var(--border-thin); min-height: 200px; cursor: pointer; transition: opacity 0.15s; }
 .sl-card:first-child { margin-top: 30px; }
+.sl-card + .sl-card { border-top: 1px solid #000; }
 .sl-card.sl-done { opacity: 0.45; }
 .sl-addr { color: var(--accent) !important; cursor: pointer; }
 .sl-img-col { width: 46%; flex-shrink: 0; overflow: hidden; position: relative; background: #F3F4F6; }
