@@ -174,10 +174,23 @@ function renderDayTabs() {
   });
 }
 
+/* Day 預設背景圖（對應 image/ 資料夾） */
+const DAY_DEFAULT_PHOTOS = [
+  'image/day1.jpg',
+  'image/day2.jpg',
+  'image/day3.jpg',
+  'image/day4.jpg',
+  'image/day5.jpg',
+];
+
 function renderBanner() {
   const area  = document.getElementById('banner-area');
   const b     = data.days[currentDay].banner;
-  const photos = b.photos || [];
+  const userPhotos = b.photos || [];
+
+  // 若使用者沒有上傳照片，使用預設圖
+  const defaultPhoto = DAY_DEFAULT_PHOTOS[currentDay] || DAY_DEFAULT_PHOTOS[DAY_DEFAULT_PHOTOS.length - 1];
+  const photos = userPhotos.length > 0 ? userPhotos : [defaultPhoto];
 
   let bg = '';
   if (photos.length > 0) {
@@ -198,16 +211,35 @@ function renderBanner() {
     : '';
 
   area.innerHTML = `
+    <!-- Topbar above banner -->
+    <div class="banner-topbar-outer">
+      <span class="banner-brand">Travel Trace</span>
+      <div class="banner-topbar-line"></div>
+      <span class="banner-lon">135°25'59″E</span>
+    </div>
+    <div class="banner-more-wrap">
+      <button class="banner-more-btn" onclick="openBannerActionSheet(event)" title="更多選項">
+        <span class="banner-more-dot"></span>
+        <span class="banner-more-dot"></span>
+        <span class="banner-more-dot"></span>
+      </button>
+    </div>
     <div class="day-banner">
       ${bg}
       <div class="banner-gradient"></div>
+      <!-- Right side: latitude in yellow -->
+      <div class="banner-lat-block">
+        <span class="banner-lat-text">34°<br>39'<br>53″<br>N</span>
+      </div>
+      <!-- Bottom left: date + subtitle -->
       <div class="banner-text-area">
         ${data.settings?.tripName ? `<div class="banner-trip-name">${esc(data.settings.tripName)}</div>` : ''}
-        <input class="banner-date-input" id="banner-date-live"
+        <div class="banner-date-display" onclick="document.getElementById('banner-date-live').focus()" id="banner-date-display">${formatBannerDate(b.date)}</div>
+        <input class="banner-date-input banner-date-hidden" id="banner-date-live"
           data-day="${currentDay}"
           value="${esc(b.date)}"
           placeholder="YYYY/MM/DD（一）"
-          oninput="fmtDate(this)"
+          oninput="fmtDate(this);updateBannerDateDisplay(this.value)"
           onblur="saveBannerText()">
         <input class="banner-subtitle-input" id="banner-sub-live"
           data-day="${currentDay}"
@@ -215,15 +247,9 @@ function renderBanner() {
           placeholder="行程說明…"
           onblur="saveBannerText()">
       </div>
-      <button class="banner-photo-btn" onclick="openBannerActionSheet(event)" title="更多選項">
-        <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="rgba(255,255,255,0.9)">
-          <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/>
-        </svg>
-      </button>
       ${dots}
     </div>`;
 
-  // auto slideshow — clear old timer first to prevent leaks
   if (_slideshowTimer) { clearInterval(_slideshowTimer); _slideshowTimer = null; }
   if (photos.length > 1) {
     let idx = 0;
@@ -275,6 +301,19 @@ function renderTimeline() {
         ${ev.note ? `<div class="timeline-note">${esc(ev.note)}</div>` : ''}
       </div>
     </div>`).join('');
+}
+
+function formatBannerDate(str) {
+  if (!str) return '<span class="banner-date-placeholder">YYYY/<br>MM/DD（一）</span>';
+  // str = "YYYY/MM/DD（wd）"
+  const m = str.match(/^(\d{4})\/(.*)/);
+  if (m) return `${m[1]}/<br>${m[2]}`;
+  return str;
+}
+
+function updateBannerDateDisplay(val) {
+  const el = document.getElementById('banner-date-display');
+  if (el) el.innerHTML = formatBannerDate(val);
 }
 
 /* ─── Date Auto-format: digits → YYYY/MM/DD（weekday） ─── */
@@ -1108,6 +1147,10 @@ function renderFlightCards() {
         <div class="fc-airport-wrap">
           <span class="fc-aname">${esc(f.fromName||'')}</span>
           ${f.fromTerminal ? `<span class="fc-terminal">Terminal ${esc(f.fromTerminal)}</span>` : ''}
+        </div>
+        <div class="fc-airport-wrap fc-airport-right">
+          <span class="fc-aname">${esc(f.toName||'')}</span>
+          ${f.toTerminal ? `<span class="fc-terminal">Terminal ${esc(f.toTerminal)}</span>` : ''}
         </div>
       </div>
       ${(f.baggage||f.seat) ? `
