@@ -21,6 +21,32 @@ const EXPENSE_CATS = [
 /* ═══════════════════════════════════════
    DATA LAYER
 ═══════════════════════════════════════ */
+/* ─── ImgBB Upload ─── */
+const IMGBB_API_KEY = 'cfd268943c3eb02881f5526f3ddf3431';
+
+async function uploadToImgBB(file) {
+  const form = new FormData();
+  form.append('image', file);
+  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+    method: 'POST', body: form
+  });
+  const json = await res.json();
+  if (!json.success) throw new Error(json.error?.message || 'Upload failed');
+  return json.data.url;
+}
+
+function showUploadStatus(msg) {
+  let el = document.getElementById('_upload-status');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = '_upload-status';
+    el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.78);color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;z-index:9999;pointer-events:none;transition:opacity 0.3s';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = msg ? '1' : '0';
+}
+
 const KEY = 'travel_journal_v4';
 let data = {
   days: [{ banner: { date: '', subtitle: '', photos: [] }, events: [] }],
@@ -389,8 +415,7 @@ function inferAllDates() {
 /* resolve stored value → displayable URL */
 function resolvePhoto(val) {
   if (!val) return '';
-  if (val.startsWith('blob-key:')) return _blobCache.get(val) || '';
-  return val;
+  return val; // ImgBB URL, persisted in data/localStorage
 }
 
 function addDay() {
@@ -537,16 +562,18 @@ function handleGridUpload(input) {
   const files = [...input.files];
   const photos = data.days[currentDay].banner.photos || [];
   const remaining = 5 - photos.length;
-  files.slice(0, remaining).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target.result;
-      const key = `blob-key:${Date.now()}-${Math.random().toString(36).slice(2)}|${file.name}`;
-      _blobCache.set(key, base64);
-      data.days[currentDay].banner.photos.push(key);
+  files.slice(0, remaining).forEach(async file => {
+    showUploadStatus('上傳中...');
+    try {
+      const url = await uploadToImgBB(file);
+      data.days[currentDay].banner.photos.push(url);
+      save();
       renderPhotoGrid();
-    };
-    reader.readAsDataURL(file);
+    } catch(err) {
+      alert('上傳失敗：' + err.message);
+    } finally {
+      showUploadStatus('');
+    }
   });
 }
 
@@ -903,24 +930,26 @@ function saveShopSheet() {
   renderShopItems();
 }
 
-function handleShopPhotoSheet(input) {
+async function handleShopPhotoSheet(input) {
   const file = input.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const key = `blob-key:${Date.now()}|${file.name}`;
-    _blobCache.set(key, e.target.result);
+  showUploadStatus('上傳中...');
+  try {
+    const url = await uploadToImgBB(file);
     if (_shopEditIdx !== null && data.shopping[_shopEditIdx]) {
-      data.shopping[_shopEditIdx].photo = key;
+      data.shopping[_shopEditIdx].photo = url;
       save();
     }
     const photoEl = document.getElementById('sf-photo-preview');
     if (photoEl) {
-      photoEl.style.backgroundImage = `url('${e.target.result}')`;
+      photoEl.style.backgroundImage = `url('${url}')`;
       photoEl.classList.add('has-photo');
     }
-  };
-  reader.readAsDataURL(file);
+  } catch(err) {
+    alert('上傳失敗：' + err.message);
+  } finally {
+    showUploadStatus('');
+  }
 }
 
 function addShopItem() { openShopSheet(null); }
@@ -969,32 +998,36 @@ function saveTicketField(id, field, val) {
   if (t) { t[field] = val; save(); }
 }
 
-function handleTicketPhoto(input, id) {
+async function handleTicketPhoto(input, id) {
   const file = input.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const key = `blob-key:${Date.now()}|${file.name}`;
-    _blobCache.set(key, e.target.result);
+  showUploadStatus('上傳中...');
+  try {
+    const url = await uploadToImgBB(file);
     const t = data.tickets.find(t => t.id === id);
-    if (t) { t.photo = key; save(); renderTicketCards(); }
-  };
-  reader.readAsDataURL(file);
+    if (t) { t.photo = url; save(); renderTicketCards(); }
+  } catch(err) {
+    alert('上傳失敗：' + err.message);
+  } finally {
+    showUploadStatus('');
+  }
 }
 
 function addTicketFromPhoto(input) {
   const files = [...input.files];
   if (!data.tickets) data.tickets = [];
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const key = `blob-key:${Date.now()}-${Math.random().toString(36).slice(2)}|${file.name}`;
-      _blobCache.set(key, e.target.result);
-      data.tickets.push({ id: Date.now() + Math.random(), photo: key });
+  files.forEach(async file => {
+    showUploadStatus('上傳中...');
+    try {
+      const url = await uploadToImgBB(file);
+      data.tickets.push({ id: Date.now() + Math.random(), photo: url });
       save();
       renderTicketCards();
-    };
-    reader.readAsDataURL(file);
+    } catch(err) {
+      alert('上傳失敗：' + err.message);
+    } finally {
+      showUploadStatus('');
+    }
   });
   input.value = '';
 }
