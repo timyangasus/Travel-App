@@ -1053,7 +1053,9 @@ function openFlightSheet(editId) {
   fields.forEach(k => { const el = document.getElementById('ff-'+k); if (el) el.value = ''; });
   if (editId) {
     const f = data.flights.find(f => f.id === editId);
-    if (f) fields.forEach(k => { const el = document.getElementById('ff-'+k); if (el) el.value = f[k]||''; });
+    if (f) {
+      fields.forEach(k => { const el = document.getElementById('ff-'+k); if (el) el.value = f[k]||''; });
+    }
   }
   const title = document.getElementById('flight-sheet-title');
   if (title) title.textContent = editId ? '編輯機票' : '新增機票';
