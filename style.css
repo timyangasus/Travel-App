@@ -953,6 +953,19 @@ canvas { display: block; width: 100%; height: 100%; }
 
 
 #screen-itinerary { padding-bottom: 20px; }
+#screen-itinerary.active {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#screen-itinerary #banner-area { flex-shrink: 0; }
+#screen-itinerary .day-tabs-wrap { flex-shrink: 0; }
+#screen-itinerary #timeline-section {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 20px;
+}
 
 /* Banner */
 .day-banner {
