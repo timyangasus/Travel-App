@@ -215,7 +215,7 @@ function renderBanner() {
     <div class="banner-topbar-outer">
       <span class="banner-brand">Travel Trace</span>
       <div class="banner-topbar-line"></div>
-      <span class="banner-lon">${esc(data.settings.lonText || "135°25'59″E")}</span>
+      <span class="banner-lon">135°25'59″E</span>
     </div>
     <div class="banner-more-wrap">
       <button class="banner-more-btn" onclick="openBannerActionSheet(event)" title="更多選項">
@@ -229,7 +229,7 @@ function renderBanner() {
       <div class="banner-gradient"></div>
       <!-- Right side: latitude in yellow -->
       <div class="banner-lat-block">
-        <span class="banner-lat-text">${(data.settings.latText || "34°\n39'\n53″\nN").split('\n').join('<br>')}</span>
+        <span class="banner-lat-text">34°<br>39'<br>53″<br>N</span>
       </div>
       <!-- Bottom left: date + subtitle -->
       <div class="banner-text-area">

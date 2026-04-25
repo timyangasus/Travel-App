@@ -8,14 +8,13 @@
   <meta name="apple-mobile-web-app-title" content="旅遊誌">
   <meta name="theme-color" content="#ffffff">
   <link rel="apple-touch-icon" id="apple-touch-icon-link" href="">
-  <link rel="icon" type="image/svg+xml" href="">
+  <link rel="icon" id="icon-link" href="">
   <title>旅遊誌</title>
   <script>
   (function(){
     const c = document.createElement('canvas');
     c.width = 512; c.height = 512;
     const ctx = c.getContext('2d');
-    // 圓角
     const r = 112;
     ctx.beginPath();
     ctx.moveTo(r,0); ctx.lineTo(512-r,0);
@@ -28,18 +27,15 @@
     g.addColorStop(0,'#3A3A3A'); g.addColorStop(1,'#0A0A0A');
     ctx.fillStyle = g; ctx.fill();
     ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 120px Helvetica Neue, Arial, sans-serif';
+    ctx.fillText('TT/', 52, 225);
     ctx.font = 'bold 148px Helvetica Neue, Arial, sans-serif';
-    ctx.fillText('TT/', 52, 240);
     ctx.fillText('01', 52, 390);
     const png = c.toDataURL('image/png');
     document.getElementById('apple-touch-icon-link').href = png;
-    const iconLink = document.querySelector('link[rel="icon"]');
-    if(iconLink) iconLink.href = png;
+    document.getElementById('icon-link').href = png;
   })();
   </script>
-  <link rel="stylesheet" href="style.css">PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiMyQzJDMkMiIHJ4PSIxMTIiLz4KICA8dGV4dCB4PSI1MiIgeT0iMjQwIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIE5ldWUsIEFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNzAwIgogICAgZm9udC1zaXplPSIxNDgiIGZpbGw9IndoaXRlIiBsZXR0ZXItc3BhY2luZz0iLTQiPlRULzwvdGV4dD4KICA8dGV4dCB4PSI1MiIgeT0iMzkwIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIE5ldWUsIEFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNzAwIgogICAgZm9udC1zaXplPSIxNDgiIGZpbGw9IndoaXRlIiBsZXR0ZXItc3BhY2luZz0iLTQiPjAxPC90ZXh0Pgo8L3N2Zz4=">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiMyQzJDMkMiIHJ4PSIxMTIiLz4KICA8dGV4dCB4PSI1MiIgeT0iMjQwIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIE5ldWUsIEFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNzAwIgogICAgZm9udC1zaXplPSIxNDgiIGZpbGw9IndoaXRlIiBsZXR0ZXItc3BhY2luZz0iLTQiPlRULzwvdGV4dD4KICA8dGV4dCB4PSI1MiIgeT0iMzkwIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIE5ldWUsIEFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNzAwIgogICAgZm9udC1zaXplPSIxNDgiIGZpbGw9IndoaXRlIiBsZXR0ZXItc3BhY2luZz0iLTQiPjAxPC90ZXh0Pgo8L3N2Zz4=">
-  <title>旅遊誌</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -392,14 +388,6 @@
         <div class="set-field">
           <span class="set-field-label">日期</span>
           <input class="set-field-val" id="set-trip-dates" placeholder="MM/DD-MM/DD" oninput="fmtTripDates(this)" onblur="saveSettings()">
-        </div>
-        <div class="set-field">
-          <span class="set-field-label">經度文字</span>
-          <input class="set-field-val" id="set-lon-text" placeholder="135°25'59″E" onblur="saveGeoText()">
-        </div>
-        <div class="set-field">
-          <span class="set-field-label">緯度文字</span>
-          <input class="set-field-val" id="set-lat-text" placeholder="34° / 39' / 53″ / N" onblur="saveGeoText()">
         </div>
         <div class="set-field set-field-select" onclick="toggleCurrencyDropdown()">
           <span class="set-field-label">幣別</span>
