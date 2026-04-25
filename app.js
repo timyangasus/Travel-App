@@ -543,12 +543,21 @@ function renderPhotoGrid() {
 
   // 新增格子（最多 5 張）
   if (photos.length < 5) {
-    const add = document.createElement('label');
+    const remaining = 5 - photos.length;
+    const add = document.createElement('div');
     add.className = 'photo-cell photo-cell-add';
     add.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px"><path d="M440-320v-326L336-542l-56-58 200-200 200 200-56 58-104-104v326h-80ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg>
-      <span>新增照片</span>
-      <input type="file" accept="image/*" multiple style="display:none" onchange="handleGridUpload(this)">`;
+      <span>新增照片</span>`;
+    // hidden input — no capture attr → iOS shows Photos only option first
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = 'image/*';
+    inp.multiple = true;
+    inp.style.display = 'none';
+    inp.addEventListener('change', () => handleGridUpload(inp));
+    add.addEventListener('click', () => inp.click());
+    add.appendChild(inp);
     grid.appendChild(add);
   }
 }

@@ -2038,14 +2038,16 @@ canvas { display: block; width: 100%; height: 100%; }
 .photo-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 20px;
 }
 .photo-cell {
-  aspect-ratio: 1;
+  aspect-ratio: 1 / 1;
   border-radius: var(--radius-sm);
   overflow: hidden;
   position: relative;
+  width: 100%;
+  min-width: 0;
 }
 .photo-cell-filled {
   background-size: cover;
@@ -2077,6 +2079,7 @@ canvas { display: block; width: 100%; height: 100%; }
   gap: 6px;
   cursor: pointer;
   transition: background 0.15s;
+  box-sizing: border-box;
 }
 .photo-cell-add:active { background: #E9EBF0; }
 .photo-cell-add svg path { fill: var(--text-tertiary); }
