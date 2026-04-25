@@ -999,9 +999,10 @@ canvas { display: block; width: 100%; height: 100%; }
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.06) 0%,
-    rgba(0, 0, 0, 0.18) 35%,
-    rgba(0, 0, 0, 0.65) 100%
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 30%,
+    rgba(0, 0, 0, 0.45) 65%,
+    rgba(0, 0, 0, 0.72) 100%
   );
   pointer-events: none;
 }
@@ -1019,6 +1020,7 @@ canvas { display: block; width: 100%; height: 100%; }
   letter-spacing: 0.14em;
   text-transform: uppercase;
   margin-bottom: 6px;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.6);
 }
 .banner-date-input {
   display: block;
@@ -1028,7 +1030,7 @@ canvas { display: block; width: 100%; height: 100%; }
   color: #fff;
   letter-spacing: -0.5px;
   line-height: 1.2;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 4px 24px rgba(0,0,0,0.55), 0 2px 48px rgba(0,0,0,0.35);
   background: transparent;
   border: none;
   border-bottom: 1.5px solid transparent;
@@ -1053,6 +1055,7 @@ canvas { display: block; width: 100%; height: 100%; }
   caret-color: rgba(255, 255, 255, 0.8);
   line-height: 1.5;
   transition: border-color 0.2s;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.6), 0 2px 40px rgba(0,0,0,0.4);
 }
 .banner-subtitle-input::placeholder { color: rgba(255, 255, 255, 0.28); }
 .banner-subtitle-input:focus { border-bottom-color: rgba(255, 255, 255, 0.25); }
@@ -2631,7 +2634,7 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 .banner-lat-block {
   position: absolute;
-  right: -75px;
+  right: -65px;
   top: -20px; bottom: 20px;
   width: 58%;
   display: flex;
@@ -2664,6 +2667,7 @@ canvas { display: block; width: 100%; height: 100%; }
   letter-spacing: -0.5px;
   cursor: pointer;
   margin-bottom: 6px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.6), 0 2px 40px rgba(0,0,0,0.4);
 }
 .banner-date-placeholder {
   color: rgba(255,255,255,0.4);
