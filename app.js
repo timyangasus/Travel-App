@@ -215,7 +215,7 @@ function renderBanner() {
     <div class="banner-topbar-outer">
       <span class="banner-brand">Travel Trace</span>
       <div class="banner-topbar-line"></div>
-      <span class="banner-lon">135°25'59″E</span>
+      <span class="banner-lon">${esc(data.settings.lonText || "135°25'59″E")}</span>
     </div>
     <div class="banner-more-wrap">
       <button class="banner-more-btn" onclick="openBannerActionSheet(event)" title="更多選項">
@@ -229,7 +229,7 @@ function renderBanner() {
       <div class="banner-gradient"></div>
       <!-- Right side: latitude in yellow -->
       <div class="banner-lat-block">
-        <span class="banner-lat-text">34°<br>39'<br>53″<br>N</span>
+        <span class="banner-lat-text">${(data.settings.latText || "34°\n39'\n53″\nN").split('\n').join('<br>')}</span>
       </div>
       <!-- Bottom left: date + subtitle -->
       <div class="banner-text-area">
@@ -1347,6 +1347,11 @@ function renderSettings() {
   if (nameEl) nameEl.value = s.tripName || '';
   const datesEl = document.getElementById('set-trip-dates');
   if (datesEl) datesEl.value = s.tripDates || '';
+  // Geo text
+  const lonEl = document.getElementById('set-lon-text');
+  if (lonEl) lonEl.value = s.lonText || "135°25'59″E";
+  const latEl = document.getElementById('set-lat-text');
+  if (latEl) latEl.value = s.latText || "34°\n39'\n53″\nN";
   // Currency display
   const c = CURRENCIES.find(c => c.code === (s.currency || 'TWD'));
   const disp = document.getElementById('set-currency-display');
@@ -1356,6 +1361,15 @@ function renderSettings() {
   // Tags
   renderSettingsTags();
   applyTheme(s.theme);
+}
+
+function saveGeoText() {
+  const lonEl = document.getElementById('set-lon-text');
+  const latEl = document.getElementById('set-lat-text');
+  if (lonEl) data.settings.lonText = lonEl.value;
+  if (latEl) data.settings.latText = latEl.value;
+  save();
+  renderBanner();
 }
 
 function toggleCurrencyDropdown() {
@@ -1499,6 +1513,14 @@ function importJSON(input) {
       showConfirm('匯入資料', '現有資料將被覆蓋，確定繼續？', () => {
         data = imported;
         if (!data.settings) data.settings = { tripName: '', budget: 0, currency: 'TWD', theme: 'light' };
+        // 清除無效的 blob-key（session 已重置，blob URL 失效）
+        // 保留 image/ 路徑的預設圖
+        data.days.forEach((d, i) => {
+          if (!d.banner) d.banner = { date: '', subtitle: '', photos: [] };
+          if (!d.banner.photos) d.banner.photos = [];
+          // 移除 blob-key 開頭的（session 間無效），保留一般路徑
+          d.banner.photos = d.banner.photos.filter(p => p && !p.startsWith('blob-key:'));
+        });
         save();
         renderItinerary();
         renderExpense();
