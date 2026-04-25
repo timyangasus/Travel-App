@@ -14,7 +14,7 @@
 </head>
 <body>
 <div id="app">
-
+  <div id="screens-wrap">
   <!-- ═══ ITINERARY ═══ -->
   <div id="screen-itinerary" class="screen active">
     <!-- Banner (rendered by JS) -->
@@ -369,15 +369,13 @@
             <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px"><path fill="#1A1A1A" d="M7 10l5 5 5-5z"/></svg>
           </div>
           <div class="set-currency-dropdown" id="set-currency-dropdown">
-            <select class="set-currency-select" id="set-currency" size="7" onchange="setCurrencyFromSelect()">
-              <option value="TWD">NT$　新台幣</option>
-              <option value="JPY">¥　日圓</option>
-              <option value="USD">$　美金</option>
-              <option value="EUR">€　歐元</option>
-              <option value="HKD">HK$　港幣</option>
-              <option value="CNY">CN¥　人民幣</option>
-              <option value="THB">฿　泰銖</option>
-            </select>
+            <div class="set-currency-option" onclick="event.stopPropagation();setCurrencyBtn('TWD','NT$','新台幣')">NT$　新台幣</div>
+            <div class="set-currency-option" onclick="event.stopPropagation();setCurrencyBtn('JPY','¥','日圓')">¥　日圓</div>
+            <div class="set-currency-option" onclick="event.stopPropagation();setCurrencyBtn('USD','$','美金')">$　美金</div>
+            <div class="set-currency-option" onclick="event.stopPropagation();setCurrencyBtn('EUR','€','歐元')">€　歐元</div>
+            <div class="set-currency-option" onclick="event.stopPropagation();setCurrencyBtn('HKD','HK$','港幣')">HK$　港幣</div>
+            <div class="set-currency-option" onclick="event.stopPropagation();setCurrencyBtn('CNY','CN¥','人民幣')">CN¥　人民幣</div>
+            <div class="set-currency-option" onclick="event.stopPropagation();setCurrencyBtn('THB','฿','泰銖')">฿　泰銖</div>
           </div>
         </div>
         <div class="set-field set-field-select" onclick="openTagSheet()">
@@ -425,6 +423,8 @@
   </div>
 
   <!-- ═══ TAB BAR ═══ -->
+  </div><!-- end screens-wrap -->
+
   <nav id="tab-bar">
     <button class="tab-btn active" onclick="switchTab('itinerary')" id="tab-itinerary">
       <span class="tab-icon">

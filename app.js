@@ -1311,6 +1311,15 @@ function toggleCurrencyDropdown() {
   if (dd) dd.classList.toggle('open');
 }
 
+function setCurrencyBtn(code, symbol, label) {
+  data.settings.currency = code;
+  save();
+  const disp = document.getElementById('set-currency-display');
+  if (disp) disp.textContent = symbol + ' ' + label;
+  document.getElementById('set-currency-dropdown')?.classList.remove('open');
+  renderExpenseList();
+}
+
 function setCurrencyFromSelect() {
   const sel = document.getElementById('set-currency');
   if (!sel) return;
