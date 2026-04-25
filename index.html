@@ -17,12 +17,12 @@
 <div id="app">
   <div class="page-container">
   <!-- ═══ ITINERARY ═══ -->
-  <div id="screen-itinerary" class="page active">
+  <div id="screen-itinerary" class="page active" style="display:flex;flex-direction:column;overflow:hidden;">
     <!-- Banner (rendered by JS) -->
-    <div id="banner-area"></div>
+    <div id="banner-area" style="flex-shrink:0"></div>
 
     <!-- Day Tabs -->
-    <div class="day-tabs-wrap">
+    <div class="day-tabs-wrap" style="flex-shrink:0">
       <div class="day-tabs-header">
         <span class="day-tabs-label">DAY</span>
         <button class="day-tabs-add-event" onclick="openEventModal()">＋</button>
@@ -30,8 +30,8 @@
       <div class="day-tabs" id="day-tabs"></div>
     </div>
 
-    <!-- Timeline -->
-    <div class="timeline-section">
+    <!-- Timeline — scrolls independently -->
+    <div class="timeline-section" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;">
       <div class="timeline" id="timeline-list"></div>
     </div>
   </div>
