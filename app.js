@@ -250,7 +250,7 @@ function renderBanner() {
         <span class="banner-more-dot"></span>
       </button>
     </div>
-    <div class="day-banner">
+    <div class="day-banner" onclick="openBannerModal(event)">
       ${bg}
       <div class="banner-gradient"></div>
       <!-- Right side: latitude in yellow -->
@@ -260,17 +260,19 @@ function renderBanner() {
       <!-- Bottom left: date + subtitle -->
       <div class="banner-text-area">
         ${data.settings?.tripName ? `<div class="banner-trip-name">${esc(data.settings.tripName)}</div>` : ''}
-        <div class="banner-date-display" onclick="document.getElementById('banner-date-live').focus()" id="banner-date-display">${formatBannerDate(b.date)}</div>
+        <div class="banner-date-display" onclick="event.stopPropagation();document.getElementById('banner-date-live').focus()" id="banner-date-display">${formatBannerDate(b.date)}</div>
         <input class="banner-date-input banner-date-hidden" id="banner-date-live"
           data-day="${currentDay}"
           value="${esc(b.date)}"
           placeholder="YYYY/MM/DD（一）"
+          onclick="event.stopPropagation()"
           oninput="fmtDate(this);updateBannerDateDisplay(this.value)"
           onblur="saveBannerText()">
         <input class="banner-subtitle-input" id="banner-sub-live"
           data-day="${currentDay}"
           value="${esc(b.subtitle)}"
           placeholder="行程說明…"
+          onclick="event.stopPropagation()"
           onblur="saveBannerText()">
       </div>
       ${dots}
