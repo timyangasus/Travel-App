@@ -241,7 +241,7 @@ function renderBanner() {
     <div class="banner-topbar-outer">
       <span class="banner-brand">Travel Trace</span>
       <div class="banner-topbar-line"></div>
-      <span class="banner-lon">135°25'59″E</span>
+      <span class="banner-lon">${esc(data.settings?.tripName || '')}</span>
     </div>
     <div class="banner-more-wrap">
       <button class="banner-more-btn" onclick="openBannerActionSheet(event)" title="更多選項">
@@ -259,7 +259,7 @@ function renderBanner() {
       </div>
       <!-- Bottom left: date + subtitle -->
       <div class="banner-text-area">
-        ${data.settings?.tripName ? `<div class="banner-trip-name">${esc(data.settings.tripName)}</div>` : ''}
+
         <div class="banner-date-display" onclick="event.stopPropagation();document.getElementById('banner-date-live').focus()" id="banner-date-display">${formatBannerDate(b.date)}</div>
         <input class="banner-date-input banner-date-hidden" id="banner-date-live"
           data-day="${currentDay}"
