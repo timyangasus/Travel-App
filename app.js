@@ -1049,7 +1049,7 @@ let _flightEditId = null;
 
 function openFlightSheet(editId) {
   _flightEditId = editId || null;
-  const fields = ['airline','flightNo','fromName','fromTerminal','times','baggage','seat'];
+  const fields = ['airline','flightNo','fromCode','fromName','fromTerminal','toCode','toName','toTerminal','times','baggage','seat'];
   fields.forEach(k => { const el = document.getElementById('ff-'+k); if (el) el.value = ''; });
   if (editId) {
     const f = data.flights.find(f => f.id === editId);
@@ -1089,8 +1089,12 @@ function saveFlightSheet() {
   const vals = {
     airline:       get('ff-airline'),
     flightNo:      get('ff-flightNo'),
+    fromCode:      get('ff-fromCode').toUpperCase(),
     fromName:      get('ff-fromName'),
     fromTerminal:  get('ff-fromTerminal'),
+    toCode:        get('ff-toCode').toUpperCase(),
+    toName:        get('ff-toName'),
+    toTerminal:    get('ff-toTerminal'),
     times:         get('ff-times'),
     baggage:       get('ff-baggage'),
     seat:          get('ff-seat'),
@@ -1145,12 +1149,14 @@ function renderFlightCards() {
       </div>
       <div class="fc-airports">
         <div class="fc-airport-wrap">
+          ${f.fromCode ? `<span class="fc-code">${esc(f.fromCode)}</span>` : ''}
           <span class="fc-aname">${esc(f.fromName||'')}</span>
           ${f.fromTerminal ? `<span class="fc-terminal">Terminal ${esc(f.fromTerminal)}</span>` : ''}
         </div>
         <div class="fc-airport-wrap fc-airport-right">
-          <span class="fc-aname">${esc(f.toName||'')}</span>
-          ${f.toTerminal ? `<span class="fc-terminal">Terminal ${esc(f.toTerminal)}</span>` : ''}
+          ${f.toCode ? `<span class="fc-code">${esc(f.toCode)}</span>` : ''}
+          <span class="fc-aname fc-aname-right">${esc(f.toName||'')}</span>
+          ${f.toTerminal ? `<span class="fc-terminal fc-aname-right">Terminal ${esc(f.toTerminal)}</span>` : ''}
         </div>
       </div>
       ${(f.baggage||f.seat) ? `
