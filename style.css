@@ -1,6 +1,6 @@
 /* ===================== CSS VARIABLES — Apple Design System ===================== */
 :root {
-  --bg-primary: #f5f5f7;
+  --bg-primary: #ffffff;
   --bg-secondary: #ffffff;
   --bg-tertiary: #e8e8ed;
   --label-primary: #1d1d1f;
@@ -150,10 +150,8 @@ body {
 
 /* ===================== TAB BAR ===================== */
 .tab-bar {
-  background: rgba(245,245,247,0.94);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-top: 0.5px solid var(--separator);
+  background: #fff;
+  border-top: 1px solid #E0E0E0;
   padding-bottom: var(--safe-bottom);
   display: flex;
   align-items: stretch;
@@ -183,19 +181,19 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--gray);
+  color: #000;
   transition: color 0.2s;
 }
 
 .tab-label {
   font-size: 10px;
-  font-weight: 500;
-  color: var(--gray);
+  font-weight: 400;
+  color: #000;
   letter-spacing: -0.08px;
 }
 
-.tab-item.active .tab-label { color: var(--blue); }
-.tab-item.active .tab-icon { color: var(--blue); }
+.tab-item.active .tab-label { color: #000; font-weight: 700; }
+.tab-item.active .tab-icon { color: #000; }
 
 /* ===================== SEGMENTED CONTROL ===================== */
 .segmented-control {
@@ -918,7 +916,7 @@ canvas { display: block; width: 100%; height: 100%; }
 
 /* ─── Design Tokens ─── */
 :root {
-  --bg: #fff;
+  --bg: #ffffff;
   --surface: rgba(255, 255, 255, 0.72);
   --surface-solid: #fff;
   --border: rgba(0, 0, 0, 0.08);
@@ -948,16 +946,7 @@ canvas { display: block; width: 100%; height: 100%; }
 
 
 .tab-icon svg { width: 24px; height: 24px; display: block; }
-.tab-icon svg path { transition: fill 0.2s; fill: #9CA3AF; }
-
-.tab-label {
-  font-size: 10px;
-  letter-spacing: 0.02em;
-  font-weight: 600;
-  color: #9CA3AF;
-  transition: color 0.2s;
-}
-
+.tab-icon svg path { fill: #000; }
 
 /* ─── Screens ─── */
 
@@ -968,7 +957,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .day-banner {
   position: relative;
   width: 100%;
-  height: 100vw;
+  height: 75vw;
   background: #0f2152;
   overflow: hidden;
 }
@@ -1134,7 +1123,7 @@ canvas { display: block; width: 100%; height: 100%; }
   border: none;
   cursor: pointer;
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: 21px;
   font-weight: 600;
   color: var(--text-tertiary);
   position: relative;
@@ -1183,7 +1172,7 @@ canvas { display: block; width: 100%; height: 100%; }
   margin-top: 4px;
 }
 .timeline-item:last-child .timeline-line { display: none; }
-.timeline-right { flex: 1; padding-bottom: 24px; min-width: 0; }
+.timeline-right { flex: 1; padding-bottom: 31px; min-width: 0; }
 .timeline-time-row {
   display: flex;
   align-items: center;
@@ -1211,8 +1200,8 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 .t-del-btn:active { opacity: 1; color: var(--danger); }
 .timeline-title {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 400;
   color: var(--text-primary);
   letter-spacing: -0.2px;
   word-break: break-word;
@@ -1259,7 +1248,7 @@ canvas { display: block; width: 100%; height: 100%; }
   padding: 0 16px;
 }
 .expense-total-card {
-  padding: 20px 0 24px;
+  padding: 26px 0 31px;
 }
 .expense-total-meta {
   text-align: right;
@@ -1391,6 +1380,7 @@ canvas { display: block; width: 100%; height: 100%; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
+  row-gap: 0;
   background: transparent;
   border: none;
   border-radius: 0;
@@ -1414,12 +1404,12 @@ canvas { display: block; width: 100%; height: 100%; }
   color: #1A1A1A;
   letter-spacing: -0.2px;
   transition: opacity 0.12s;
-  padding: 28px 16px 24px;
+  padding: 36px 16px 31px;
 }
 .info-grid-btn:active { opacity: 0.5; }
 .info-grid-icon {
-  width: 75px;
-  height: 75px;
+  width: 90px;
+  height: 90px;
   display: flex;
   align-items: center;
   justify-content: center;
