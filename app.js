@@ -72,8 +72,8 @@ function esc(s) {
    TAB NAVIGATION
 ═══════════════════════════════════════ */
 function switchTab(tab) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
   document.getElementById('screen-' + tab).classList.add('active');
   document.getElementById('tab-' + tab).classList.add('active');
   if (tab === 'expense')  renderExpense();
