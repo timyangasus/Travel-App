@@ -181,14 +181,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #000;
+  color: #9CA3AF;
   transition: color 0.2s;
 }
 
 .tab-label {
   font-size: 10px;
   font-weight: 400;
-  color: #000;
+  color: #9CA3AF;
   letter-spacing: -0.08px;
 }
 
@@ -946,7 +946,8 @@ canvas { display: block; width: 100%; height: 100%; }
 
 
 .tab-icon svg { width: 24px; height: 24px; display: block; }
-.tab-icon svg path { fill: #000; }
+.tab-icon svg path { fill: #9CA3AF; }
+.tab-item.active .tab-icon svg path { fill: #000; }
 
 /* ─── Screens ─── */
 
@@ -1096,10 +1097,10 @@ canvas { display: block; width: 100%; height: 100%; }
 .day-tabs-add-event {
   background: none;
   border: none;
-  font-size: 22px;
+  font-size: 26px;
   color: var(--accent);
   cursor: pointer;
-  padding: 0 4px;
+  padding: 10px 4px 0;
   line-height: 1;
   font-family: var(--mono);
   transition: opacity 0.15s;
@@ -1172,7 +1173,7 @@ canvas { display: block; width: 100%; height: 100%; }
   margin-top: 4px;
 }
 .timeline-item:last-child .timeline-line { display: none; }
-.timeline-right { flex: 1; padding-bottom: 31px; min-width: 0; }
+.timeline-right { flex: 1; padding-bottom: 52px; min-width: 0; }
 .timeline-time-row {
   display: flex;
   align-items: center;
@@ -1332,7 +1333,7 @@ canvas { display: block; width: 100%; height: 100%; }
   transition: color 0.15s;
 }
 .exp-row-del:active { color: var(--danger); }
-.expense-list { padding: 0; margin-top: 28px; }
+.expense-list { padding: 0; margin-top: 0px; }
 /* Sheet cat button */
 .exp-sheet-cat-btn {
   background: none;
