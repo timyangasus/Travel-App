@@ -375,6 +375,15 @@ function addDay() {
 }
 
 /* ─── Event Modal ─── */
+function fmtEventTime(el) {
+  const digits = el.value.replace(/\D/g, '').slice(0, 4);
+  if (digits.length >= 3) {
+    el.value = digits.slice(0,2) + ':' + digits.slice(2,4);
+  } else {
+    el.value = digits;
+  }
+}
+
 function openEventModal(id) {
   editingEventId = id !== undefined ? id : null;
   document.getElementById('modal-event-title').textContent = id !== undefined ? '編輯行程' : '新增行程';
@@ -389,7 +398,7 @@ function openEventModal(id) {
     document.getElementById('ev-note').value  = '';
   }
   document.getElementById('modal-event').classList.add('open');
-  setTimeout(() => document.getElementById('ev-title').focus(), 340);
+  setTimeout(() => document.getElementById('ev-time').focus(), 340);
 }
 
 function editEvent(id)   { openEventModal(id); }

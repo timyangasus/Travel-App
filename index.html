@@ -502,18 +502,28 @@
 <!-- ═══ EVENT MODAL ═══ -->
 <div class="modal-overlay" id="modal-event">
   <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-event-title">新增行程</div>
-    <div class="modal-body">
-      <div class="modal-label">時間</div>
-      <input class="modal-input" id="ev-time" type="time">
-      <div class="modal-label">標題</div>
-      <input class="modal-input" id="ev-title" placeholder="例：抵達關西機場">
-      <div class="modal-label">備注</div>
-      <textarea class="modal-textarea" id="ev-note" placeholder="詳細說明（選填）"></textarea>
-      <div class="modal-btn-row">
-        <button class="modal-btn modal-btn-cancel" onclick="closeModal('modal-event')">取消</button>
-        <button class="modal-btn modal-btn-save" onclick="saveEvent()">儲存</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0">
+      <span class="modal-title" id="modal-event-title" style="padding:0">新增行程</span>
+      <button onclick="closeModal('modal-event')" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-secondary)">×</button>
+    </div>
+    <div style="padding:0">
+      <div class="fsheet-row">
+        <span class="fsheet-label">時間</span>
+        <input class="fsheet-input" id="ev-time" placeholder="" inputmode="numeric" oninput="fmtEventTime(this)">
+      </div>
+      <div class="fsheet-row">
+        <span class="fsheet-label">標題</span>
+        <input class="fsheet-input" id="ev-title" placeholder="">
+      </div>
+      <div class="fsheet-row" style="align-items:flex-start;padding-top:15px;padding-bottom:15px">
+        <span class="fsheet-label" style="padding-top:4px">備注</span>
+        <textarea class="fsheet-input" id="ev-note" placeholder="" style="resize:none;min-height:48px;line-height:1.5"></textarea>
+      </div>
+      <div style="padding:16px 20px">
+        <div class="modal-btn-row" style="padding:0">
+          <button class="modal-btn modal-btn-cancel" onclick="closeModal('modal-event')">取消</button>
+          <button class="modal-btn modal-btn-save" onclick="saveEvent()">儲存</button>
+        </div>
       </div>
     </div>
   </div>
