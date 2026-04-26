@@ -621,6 +621,7 @@ function selectCat(label) {
 }
 
 function openExpenseSheet() {
+  window._expEditId = null;
   initCatDropdown();
   _selectedCat = '餐飲';
   const labelEl = document.getElementById('exp-cat-label');
@@ -682,11 +683,11 @@ function renderExpenseList() {
     const iconSvg = catObj ? catObj.svg.replace(/height="\d+px"/, 'height="22px"').replace(/width="\d+px"/, 'width="22px"') : '';
     const label  = item.name || item.cat || '其他';
     return `
-      <div class="exp-row">
+      <div class="exp-row" onclick="openExpenseSheetForEdit(${item.id})">
         <div class="exp-row-icon">${iconSvg}</div>
         <div class="exp-row-label">${esc(label)}</div>
         <div class="exp-row-amt">${sym}&nbsp;${parseFloat(item.amount).toLocaleString()}</div>
-        <button class="exp-row-del" onclick="deleteExpense(${item.id})">×</button>
+        <button class="exp-row-del" onclick="event.stopPropagation();deleteExpense(${item.id})">×</button>
       </div>`;
   }).join('');
 }
@@ -696,7 +697,14 @@ function addExpense() {
   const amount = document.getElementById('exp-amount').value;
   const cat    = _selectedCat || '其他';
   if (!amount) return;
-  data.expenses[expenseDay].push({ id: Date.now(), name, amount: parseFloat(amount), cat });
+  if (window._expEditId) {
+    // 編輯模式：取代原有記錄
+    const idx = data.expenses[expenseDay].findIndex(i => i.id === window._expEditId);
+    if (idx !== -1) data.expenses[expenseDay][idx] = { id: window._expEditId, name, amount: parseFloat(amount), cat };
+    window._expEditId = null;
+  } else {
+    data.expenses[expenseDay].push({ id: Date.now(), name, amount: parseFloat(amount), cat });
+  }
   save();
   closeModal('modal-expense-sheet');
   renderExpenseList();
@@ -1043,6 +1051,38 @@ function addTicketFromPhoto(input) {
   input.value = '';
 }
 
+
+function openTicketLightbox(url) {
+  let lb = document.getElementById('ticket-lightbox');
+  if (!lb) {
+    lb = document.createElement('div');
+    lb.id = 'ticket-lightbox';
+    lb.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;';
+    lb.innerHTML = '<img id="ticket-lightbox-img" style="max-width:95vw;max-height:92vh;object-fit:contain;border-radius:8px;">';
+    lb.addEventListener('click', () => lb.style.display = 'none');
+    document.body.appendChild(lb);
+  }
+  document.getElementById('ticket-lightbox-img').src = url;
+  lb.style.display = 'flex';
+}
+
+
+function openExpenseSheetForEdit(id) {
+  const item = (data.expenses[expenseDay] || []).find(i => i.id === id);
+  if (!item) return;
+  window._expEditId = id;
+  initCatDropdown();
+  _selectedCat = item.cat || '其他';
+  const labelEl = document.getElementById('exp-cat-label');
+  if (labelEl) labelEl.textContent = _selectedCat;
+  const nameEl = document.getElementById('exp-name');
+  const amtEl  = document.getElementById('exp-amount');
+  if (nameEl) nameEl.value = item.name || '';
+  if (amtEl)  amtEl.value  = item.amount || '';
+  document.getElementById('modal-expense-sheet').classList.add('open');
+  setTimeout(() => document.getElementById('exp-amount')?.focus(), 340);
+}
+
 function renderTicketCards() {
   const cards = data.tickets || [];
   document.getElementById('ticket-cards').innerHTML = cards.length
@@ -1051,7 +1091,7 @@ function renderTicketCards() {
         return `
         <div class="ticket-card">
           <div class="ticket-img-wrap">
-            <img class="ticket-img" src="${photoUrl}" alt="票券">
+            <img class="ticket-img" src="${photoUrl}" alt="票券" onclick="openTicketLightbox('${photoUrl}')">
             <button class="ticket-img-del" onclick="deleteTicketCard(${t.id})">
               <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
             </button>

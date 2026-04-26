@@ -120,7 +120,7 @@ body {
 }
 
 .nav-btn.icon-btn {
-  font-size: 26px;
+  font-size: 30px;
   font-weight: 300;
   line-height: 1;
   justify-content: flex-end;
@@ -1835,7 +1835,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .hotel2-right { display: flex; align-items: center; gap: 8px; }
 .hotel2-nights {
   font-size: 16px; font-weight: 700;
-  background: rgba(212,175,55,0.12); color: #D4AF37;
+  background: #F0F0F0; color: #333;
   padding: 4px 12px; border-radius: 0; font-family: var(--mono);
 }
 .hotel2-del {
@@ -2593,8 +2593,8 @@ canvas { display: block; width: 100%; height: 100%; }
   z-index: 20;
 }
 .banner-more-btn {
-  width: 32px; height: 32px;
-  border: 2.5px solid #1A1A1A;
+  width: 22px; height: 22px;
+  border: 1.8px solid #1A1A1A;
   border-radius: 50%;
   background: none;
   cursor: pointer;
@@ -2602,7 +2602,7 @@ canvas { display: block; width: 100%; height: 100%; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 2px;
   flex-shrink: 0;
   margin-left: 4px;
   padding: 0;
@@ -2610,7 +2610,7 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 .banner-more-btn:active { opacity: 0.5; }
 .banner-more-dot {
-  width: 4.5px; height: 4.5px;
+  width: 3px; height: 3px;
   border-radius: 50%;
   background: #1A1A1A;
   display: block;
