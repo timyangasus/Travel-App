@@ -1758,14 +1758,21 @@ function clearAllData() {
     return WMO_DESC[code] || 'Cloudy';
   }
 
+  let _cachedTemp = '';  // 快取溫度，renderBanner 後填回
+
+  function applyWeatherToDOM() {
+    const tempEl = document.getElementById('banner-weather-temp');
+    if (tempEl && _cachedTemp) tempEl.textContent = _cachedTemp;
+  }
+
   async function fetchWeather(lat, lon) {
     try {
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode&temperature_unit=celsius`;
       const res = await fetch(url);
       const data = await res.json();
       const temp = Math.round(data.current.temperature_2m);
-      const tempEl = document.getElementById('banner-weather-temp');
-      if (tempEl) tempEl.textContent = temp + '°';
+      _cachedTemp = temp + '°';
+      applyWeatherToDOM();
     } catch(e) {
       console.warn('Weather fetch failed:', e);
     }
@@ -1775,19 +1782,18 @@ function clearAllData() {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-      () => {
-        // 定位失敗 fallback：不顯示
-        const tempEl = document.getElementById('banner-weather-temp');
-        const descEl = document.getElementById('banner-weather-desc');
-        if (tempEl) tempEl.textContent = '';
-        if (descEl) descEl.textContent = '';
-      },
+      () => {},
       { timeout: 8000 }
     );
   }
 
-  // 每次 renderBanner 後更新天氣
-  const _origRenderBanner = window.renderBanner;
+  // Hook renderBanner — 每次 banner 重繪後把快取溫度填回
+  const _origRenderBanner = renderBanner;
+  window.renderBanner = function() {
+    _origRenderBanner();
+    applyWeatherToDOM();
+  };
+
   document.addEventListener('DOMContentLoaded', () => {
     initWeather();
     // 每30分鐘更新一次
