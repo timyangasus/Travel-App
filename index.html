@@ -173,33 +173,33 @@
           <input class="fsheet-input" id="ff-flightNo" placeholder="">
         </div>
         <div class="fsheet-row">
-          <span class="fsheet-label">出發機場</span>
-          <input class="fsheet-input" id="ff-fromCode" placeholder="機場代號" style="flex:0 0 80px;text-align:right;text-transform:uppercase">
-        </div>
-        <div class="fsheet-row">
-          <span class="fsheet-label" style="color:var(--text-tertiary)">機場名稱</span>
-          <input class="fsheet-input" id="ff-fromName" placeholder="" style="text-align:right">
-        </div>
-        <div class="fsheet-row">
-          <span class="fsheet-label" style="color:var(--text-tertiary)">Terminal</span>
-          <input class="fsheet-input" id="ff-fromTerminal" placeholder="" style="flex:0 0 60px;text-align:right">
-        </div>
-        <div class="fsheet-row" style="margin-top:6px">
-          <span class="fsheet-label">抵達機場</span>
-          <input class="fsheet-input" id="ff-toCode" placeholder="機場代號" style="flex:0 0 80px;text-align:right;text-transform:uppercase">
-        </div>
-        <div class="fsheet-row">
-          <span class="fsheet-label" style="color:var(--text-tertiary)">機場名稱</span>
-          <input class="fsheet-input" id="ff-toName" placeholder="" style="text-align:right">
-        </div>
-        <div class="fsheet-row">
-          <span class="fsheet-label" style="color:var(--text-tertiary)">Terminal</span>
-          <input class="fsheet-input" id="ff-toTerminal" placeholder="" style="flex:0 0 60px;text-align:right">
-        </div>
-        <div class="fsheet-row">
           <span class="fsheet-label">班機時間</span>
           <input class="fsheet-input" id="ff-times" placeholder="" inputmode="numeric"
             oninput="fmtFlightTimes(this)">
+        </div>
+        <div class="fsheet-row">
+          <span class="fsheet-label">出發機場代號</span>
+          <input class="fsheet-input" id="ff-fromCode" placeholder="" style="flex:0 0 80px;text-align:right;text-transform:uppercase">
+        </div>
+        <div class="fsheet-row">
+          <span class="fsheet-label">出發機場名稱</span>
+          <input class="fsheet-input" id="ff-fromName" placeholder="" style="text-align:right">
+        </div>
+        <div class="fsheet-row">
+          <span class="fsheet-label">出發機場Terminal</span>
+          <input class="fsheet-input" id="ff-fromTerminal" placeholder="" style="flex:0 0 60px;text-align:right">
+        </div>
+        <div class="fsheet-row" style="margin-top:6px">
+          <span class="fsheet-label">抵達機場代號</span>
+          <input class="fsheet-input" id="ff-toCode" placeholder="" style="flex:0 0 80px;text-align:right;text-transform:uppercase">
+        </div>
+        <div class="fsheet-row">
+          <span class="fsheet-label">抵達機場名稱</span>
+          <input class="fsheet-input" id="ff-toName" placeholder="" style="text-align:right">
+        </div>
+        <div class="fsheet-row">
+          <span class="fsheet-label">抵達機場Terminal</span>
+          <input class="fsheet-input" id="ff-toTerminal" placeholder="" style="flex:0 0 60px;text-align:right">
         </div>
         <div class="fsheet-row">
           <span class="fsheet-label">Baggage weight</span>
@@ -529,7 +529,7 @@
       </div>
       <div class="fsheet-row">
         <span class="fsheet-label">金額</span>
-        <input class="fsheet-input" id="exp-amount" placeholder="" type="number" inputmode="decimal">
+        <input class="fsheet-input" id="exp-amount" placeholder="" type="text" inputmode="decimal">
       </div>
       <div style="padding:16px 20px">
         <div class="modal-btn-row" style="padding:0">

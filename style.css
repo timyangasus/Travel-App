@@ -1133,7 +1133,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .day-tab {
   flex-shrink: 0;
   min-width: 40px;
-  padding: 10px 14px 12px;
+  padding: 10px 21px 12px;
   background: none;
   border: none;
   cursor: pointer;
@@ -1399,7 +1399,7 @@ canvas { display: block; width: 100%; height: 100%; }
   background: #D0D0D0;
   border: none;
   border-radius: 0;
-  margin: 16px auto 0;
+  margin: 46px auto 0;
   max-width: 100%;
   overflow: visible;
 }
@@ -1719,19 +1719,19 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 .fsheet-label {
   font-size: 13px;
-  color: var(--text-tertiary);
+  color: #555;
   font-family: var(--mono);
   flex-shrink: 0;
-  width: 120px;
+  width: 140px;
 }
 .fsheet-input {
   background: none;
   border: none;
   outline: none;
   font-family: var(--mono);
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
-  color: #555;
+  color: #1A1A1A;
   text-align: right;
   flex: 1;
   min-width: 0;
@@ -2689,6 +2689,7 @@ canvas { display: block; width: 100%; height: 100%; }
 
 /* addr & url inputs keep original lighter color */
 #hf-addr, #sf-addr, #sf-link {
-  color: var(--text-secondary);
+  color: #1A1A1A;
   font-size: 15px;
+  font-weight: 400;
 }
