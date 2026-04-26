@@ -1608,6 +1608,46 @@ function clearAllData() {
 }
 
 
+/* ─── Itinerary Swipe Gesture ─── */
+(function() {
+  let startX = 0, startY = 0, isDragging = false;
+  const THRESHOLD = 50;   // px 最小滑動距離
+  const ANGLE = 35;       // 允許的角度偏差
+
+  function onTouchStart(e) {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    isDragging = true;
+  }
+
+  function onTouchEnd(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    // 確認是水平滑動（角度夠小）
+    if (Math.abs(dx) < THRESHOLD) return;
+    if (Math.abs(dy) / Math.abs(dx) > Math.tan(ANGLE * Math.PI / 180)) return;
+
+    if (dx < 0 && currentDay < data.days.length - 1) {
+      // 左滑 → 下一天
+      currentDay++;
+      renderItinerary();
+    } else if (dx > 0 && currentDay > 0) {
+      // 右滑 → 上一天
+      currentDay--;
+      renderItinerary();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('timeline-section');
+    if (!el) return;
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
+  });
+})();
+
 load();
 applyTheme(data.settings?.theme || 'light');
 
