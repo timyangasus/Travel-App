@@ -1149,11 +1149,11 @@ canvas { display: block; width: 100%; height: 100%; }
   color: #fff !important;
   background: #1A1A1A;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
   padding: 0;
-  line-height: 40px;
+  line-height: 32px;
   text-align: center;
 }
 .day-tab.active::after { display: none; }
@@ -1295,8 +1295,8 @@ canvas { display: block; width: 100%; height: 100%; }
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 8px;
-  padding-top: 10px;
+  margin-top: 16px;
+  padding-top: 20px;
   border-top: 0.5px solid var(--border-thin);
 }
 .expense-count-label {
@@ -1421,7 +1421,7 @@ canvas { display: block; width: 100%; height: 100%; }
   gap: 10px;
   cursor: pointer;
   font-family: var(--mono);
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 700;
   color: #D4AF37;
   letter-spacing: -0.2px;
@@ -1430,8 +1430,8 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 .info-grid-btn:active { opacity: 0.5; }
 .info-grid-icon {
-  width: 90px;
-  height: 90px;
+  width: 81px;
+  height: 81px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2232,8 +2232,8 @@ canvas { display: block; width: 100%; height: 100%; }
   transition: opacity 0.15s;
   margin: 0 16px;
 }
-.sl-card:first-child { margin-top: 30px; }
-.sl-card + .sl-card { margin-top: 30px; }
+.sl-card:first-child { margin-top: 15px; }
+.sl-card + .sl-card { margin-top: 15px; }
 .sl-card.sl-done { opacity: 0.45; }
 .sl-addr { color: var(--text-tertiary) !important; cursor: pointer; font-size: 12px; line-height: 1.5; }
 .sl-img-col { width: 38%; flex-shrink: 0; overflow: hidden; position: relative; background: #F3F4F6; min-height: 195px; }
