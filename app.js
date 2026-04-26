@@ -1745,13 +1745,14 @@ function clearAllData() {
 /* ─── Weather Fetch ─── */
 (function() {
   const WMO_DESC = {
-    0:'Sunny', 1:'Sunny', 2:'Partly Cloudy', 3:'Cloudy',
-    45:'Foggy', 48:'Foggy',
-    51:'Drizzle', 53:'Drizzle', 55:'Drizzle',
-    61:'Rainy', 63:'Rainy', 65:'Rainy',
-    71:'Snowy', 73:'Snowy', 75:'Snowy',
-    80:'Rainy', 81:'Rainy', 82:'Rainy',
-    95:'Stormy', 96:'Stormy', 99:'Stormy',
+    0:'Sunny', 1:'Clear', 2:'Partly Cloudy', 3:'Overcast',
+    45:'Foggy', 48:'Icy Fog',
+    51:'Light Drizzle', 53:'Drizzle', 55:'Heavy Drizzle',
+    61:'Light Rain', 63:'Rainy', 65:'Heavy Rain',
+    71:'Light Snow', 73:'Snowy', 75:'Heavy Snow', 77:'Snow',
+    80:'Showers', 81:'Rainy', 82:'Heavy Showers',
+    85:'Snow Showers', 86:'Heavy Snow',
+    95:'Stormy', 96:'Thunder', 99:'Hail Storm',
   };
 
   function getWeatherDesc(code) {
