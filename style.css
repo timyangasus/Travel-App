@@ -1144,15 +1144,15 @@ canvas { display: block; width: 100%; height: 100%; }
   position: relative;
   transition: color 0.2s;
 }
-.day-tab.active { color: var(--accent); }
-.day-tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 8px; right: 8px;
-  height: 2px;
-  background: var(--accent);
-  border-radius: 0;
+.day-tab.active {
+  color: #fff;
+  background: #1A1A1A;
+  border-radius: 50%;
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
 }
+.day-tab.active::after { display: none; }
 
 /* Timeline */
 .timeline-section { padding: 31px 16px 80px; position: relative; }
@@ -1731,7 +1731,7 @@ canvas { display: block; width: 100%; height: 100%; }
   font-family: var(--mono);
   font-size: 20px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #555;
   text-align: right;
   flex: 1;
   min-width: 0;
@@ -1744,7 +1744,7 @@ canvas { display: block; width: 100%; height: 100%; }
   -webkit-appearance: none;
   appearance: none;
 }
-.fsheet-input::placeholder { color: var(--text-tertiary); font-weight: 400; font-size: 16px; }
+.fsheet-input::placeholder { color: #9CA3AF; font-weight: 400; font-size: 18px; }
 
 /* Editable fields */
 .editable {
@@ -1799,12 +1799,12 @@ canvas { display: block; width: 100%; height: 100%; }
 .hotel-field-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--text-tertiary); text-transform: uppercase; font-family: var(--mono); }
 .hotel-field-input {
   background: #F3F4F6; border: none; border-radius: var(--radius-sm);
-  padding: 12px 14px; font-family: var(--mono); font-size: 15px;
-  color: var(--text-primary); outline: none; width: 100%; box-sizing: border-box;
+  padding: 12px 14px; font-family: var(--mono); font-size: 19px;
+  color: #1A1A1A; outline: none; width: 100%; box-sizing: border-box;
   transition: background 0.15s;
 }
 .hotel-field-input:focus { background: #E9EBF0; }
-.hotel-field-input::placeholder { color: var(--text-tertiary); }
+.hotel-field-input::placeholder { color: #9CA3AF; }
 .hotel-date-row { display: flex; align-items: center; gap: 8px; }
 .hotel-date-input { flex: 1; }
 .hotel-date-arrow { color: var(--text-tertiary); font-size: 18px; flex-shrink: 0; }
@@ -1828,13 +1828,13 @@ canvas { display: block; width: 100%; height: 100%; }
 .hotel2-dates { font-size: 14px; font-weight: 600; color: var(--text-secondary); font-family: var(--mono); flex: 1; }
 .hotel2-right { display: flex; align-items: center; gap: 8px; }
 .hotel2-nights {
-  font-size: 12px; font-weight: 700;
+  font-size: 16px; font-weight: 700;
   background: var(--accent-light); color: var(--accent);
   padding: 4px 12px; border-radius: 0; font-family: var(--mono);
 }
 .hotel2-del {
   width: 28px; height: 28px; border-radius: 50%;
-  background: rgba(0,0,0,0.06); border: none; cursor: pointer;
+  background: none; border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.12s;
 }
@@ -2002,7 +2002,8 @@ canvas { display: block; width: 100%; height: 100%; }
   transition: border-color 0.2s;
 }
 .modal-input:focus { border-color: var(--accent); }
-.modal-input::placeholder { color: var(--text-tertiary); }
+.modal-input { color: #555; }
+.modal-input::placeholder { color: #9CA3AF; }
 .modal-textarea {
   width: 100%;
   background: #fff;
@@ -2684,4 +2685,10 @@ canvas { display: block; width: 100%; height: 100%; }
   opacity: 0;
   pointer-events: none;
   width: 1px; height: 1px;
+}
+
+/* addr & url inputs keep original lighter color */
+#hf-addr, #sf-addr, #sf-link {
+  color: var(--text-secondary);
+  font-size: 15px;
 }

@@ -28,9 +28,9 @@
     ctx.fillStyle = g; ctx.fill();
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 120px Helvetica Neue, Arial, sans-serif';
-    ctx.fillText('TT/', 52, 225);
+    ctx.fillText('TT/', 110, 200);
     ctx.font = 'bold 148px Helvetica Neue, Arial, sans-serif';
-    ctx.fillText('01', 52, 390);
+    ctx.fillText('01', 110, 360);
     const png = c.toDataURL('image/png');
     document.getElementById('apple-touch-icon-link').href = png;
     document.getElementById('icon-link').href = png;
@@ -524,12 +524,12 @@
         </div>
       </div>
       <div class="fsheet-row">
-        <span class="fsheet-label">金額</span>
-        <input class="fsheet-input" id="exp-amount" placeholder="" type="number" inputmode="decimal">
+        <span class="fsheet-label">項目</span>
+        <input class="fsheet-input" id="exp-name" placeholder="">
       </div>
       <div class="fsheet-row">
-        <span class="fsheet-label">備注</span>
-        <input class="fsheet-input" id="exp-name" placeholder="">
+        <span class="fsheet-label">金額</span>
+        <input class="fsheet-input" id="exp-amount" placeholder="" type="number" inputmode="decimal">
       </div>
       <div style="padding:16px 20px">
         <div class="modal-btn-row" style="padding:0">
@@ -593,11 +593,6 @@
     <button class="action-sheet-btn" onclick="bannerActionAddDay()">
       <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
       新增天數
-    </button>
-    <div class="action-sheet-divider"></div>
-    <button class="action-sheet-btn" onclick="bannerActionEdit()">
-      <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"><path d="M480-480ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h320v80H200v560h560v-320h80v320q0 33-23.5 56.5T760-120H200Zm40-160h480L570-480 450-320l-90-120-120 160Zm440-320v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Z"/></svg>
-      選擇照片
     </button>
     <div class="action-sheet-divider"></div>
     <button class="action-sheet-btn action-sheet-btn-danger" onclick="bannerActionDelete()">

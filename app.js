@@ -182,6 +182,11 @@ function renderDayTabs() {
   data.days.forEach((_, i) => {
     const b = document.createElement('button');
     b.className = 'day-tab' + (i === currentDay ? ' active' : '');
+    if (i === currentDay) {
+      b.style.cssText = 'width:40px;height:40px;padding:0;display:inline-flex;align-items:center;justify-content:center;';
+    } else {
+      b.style.cssText = '';
+    }
     b.textContent = i + 1;
     b.onclick = () => { currentDay = i; renderItinerary(); };
 
@@ -1610,5 +1615,25 @@ function clearAllData() {
 
 load();
 applyTheme(data.settings?.theme || 'light');
+
+// Auto-jump to today if within trip date range
+(function() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  let matched = false;
+  for (let i = 0; i < data.days.length; i++) {
+    const d = parseBannerDate(data.days[i].banner.date);
+    if (d) {
+      d.setHours(0,0,0,0);
+      if (d.getTime() === today.getTime()) {
+        currentDay = i;
+        matched = true;
+        break;
+      }
+    }
+  }
+  if (!matched) currentDay = 0;
+})();
+
 renderItinerary();
 renderExpense();
