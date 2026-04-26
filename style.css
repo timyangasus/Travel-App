@@ -2654,11 +2654,13 @@ canvas { display: block; width: 100%; height: 100%; }
   top: -20px; bottom: 20px;
   width: 58%;
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
   padding-right: 0;
   z-index: 3;
   pointer-events: none;
+  gap: 8px;
 }
 .banner-lat-text {
   font-family: var(--mono);
@@ -2668,6 +2670,15 @@ canvas { display: block; width: 100%; height: 100%; }
   line-height: 0.88;
   text-align: right;
   letter-spacing: -2px;
+}
+.banner-weather-desc {
+  font-family: var(--mono);
+  font-size: clamp(14px, 3.5vw, 22px);
+  font-weight: 600;
+  color: #F5C518;
+  text-align: right;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
 }
 
 

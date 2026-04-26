@@ -253,9 +253,10 @@ function renderBanner() {
     <div class="day-banner" onclick="openBannerModal(event)">
       ${bg}
       <div class="banner-gradient"></div>
-      <!-- Right side: latitude in yellow -->
+      <!-- Right side: weather -->
       <div class="banner-lat-block">
-        <span class="banner-lat-text">34°<br>39'<br>53″<br>N</span>
+        <span class="banner-lat-text" id="banner-weather-temp">--°</span>
+        <span class="banner-weather-desc" id="banner-weather-desc">--</span>
       </div>
       <!-- Bottom left: date + subtitle -->
       <div class="banner-text-area">
@@ -1737,6 +1738,63 @@ function clearAllData() {
       el.addEventListener('touchstart', onTouchStart, { passive: true });
       el.addEventListener('touchend', onTouchEnd, { passive: true });
     });
+  });
+})();
+
+
+/* ─── Weather Fetch ─── */
+(function() {
+  const WMO_DESC = {
+    0:'Sunny', 1:'Sunny', 2:'Partly Cloudy', 3:'Cloudy',
+    45:'Foggy', 48:'Foggy',
+    51:'Drizzle', 53:'Drizzle', 55:'Drizzle',
+    61:'Rainy', 63:'Rainy', 65:'Rainy',
+    71:'Snowy', 73:'Snowy', 75:'Snowy',
+    80:'Rainy', 81:'Rainy', 82:'Rainy',
+    95:'Stormy', 96:'Stormy', 99:'Stormy',
+  };
+
+  function getWeatherDesc(code) {
+    return WMO_DESC[code] || 'Cloudy';
+  }
+
+  async function fetchWeather(lat, lon) {
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode&temperature_unit=celsius`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const temp = Math.round(data.current.temperature_2m);
+      const desc = getWeatherDesc(data.current.weathercode);
+      const tempEl = document.getElementById('banner-weather-temp');
+      const descEl = document.getElementById('banner-weather-desc');
+      if (tempEl) tempEl.textContent = temp + '°';
+      if (descEl) descEl.textContent = desc;
+    } catch(e) {
+      console.warn('Weather fetch failed:', e);
+    }
+  }
+
+  function initWeather() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+      () => {
+        // 定位失敗 fallback：不顯示
+        const tempEl = document.getElementById('banner-weather-temp');
+        const descEl = document.getElementById('banner-weather-desc');
+        if (tempEl) tempEl.textContent = '';
+        if (descEl) descEl.textContent = '';
+      },
+      { timeout: 8000 }
+    );
+  }
+
+  // 每次 renderBanner 後更新天氣
+  const _origRenderBanner = window.renderBanner;
+  document.addEventListener('DOMContentLoaded', () => {
+    initWeather();
+    // 每30分鐘更新一次
+    setInterval(initWeather, 30 * 60 * 1000);
   });
 })();
 
