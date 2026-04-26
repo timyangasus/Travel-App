@@ -1688,6 +1688,60 @@ function clearAllData() {
   });
 })();
 
+/* ─── Info Sub-Screen Swipe Gesture ─── */
+(function() {
+  const INFO_SUBS = ['flight', 'hotel', 'checklist', 'shopping', 'ticket', 'notes'];
+  let _currentInfoSub = null;
+  let _startX = 0, _startY = 0;
+  const THRESHOLD = 50;
+  const ANGLE = 35;
+
+  // 記錄目前開啟的 sub
+  const _origOpenInfoSub = openInfoSub;
+  window.openInfoSub = function(name) {
+    _currentInfoSub = name;
+    _origOpenInfoSub(name);
+  };
+
+  function swipeInfoSub(dir) {
+    if (!_currentInfoSub) return;
+    const idx = INFO_SUBS.indexOf(_currentInfoSub);
+    if (idx === -1) return;
+    const nextIdx = idx + dir;
+    if (nextIdx < 0 || nextIdx >= INFO_SUBS.length) return;
+    const nextName = INFO_SUBS[nextIdx];
+    // 關掉目前的
+    document.getElementById('screen-info-' + _currentInfoSub)?.classList.remove('active');
+    // 開啟下一個
+    _currentInfoSub = nextName;
+    _origOpenInfoSub(nextName);
+  }
+
+  function onTouchStart(e) {
+    _startX = e.touches[0].clientX;
+    _startY = e.touches[0].clientY;
+  }
+
+  function onTouchEnd(e) {
+    const dx = e.changedTouches[0].clientX - _startX;
+    const dy = e.changedTouches[0].clientY - _startY;
+    if (Math.abs(dx) < THRESHOLD) return;
+    if (Math.abs(dy) / Math.abs(dx) > Math.tan(ANGLE * Math.PI / 180)) return;
+    swipeInfoSub(dx < 0 ? 1 : -1);
+  }
+
+  // 對所有 sub-screen 加 swipe
+  document.addEventListener('DOMContentLoaded', () => {
+    INFO_SUBS.forEach(name => {
+      const el = document.getElementById('screen-info-' + name);
+      if (!el) return;
+      el.addEventListener('touchstart', onTouchStart, { passive: true });
+      el.addEventListener('touchend', onTouchEnd, { passive: true });
+    });
+  });
+})();
+
+
 load();
 applyTheme(data.settings?.theme || 'light');
 
