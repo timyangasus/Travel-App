@@ -1102,7 +1102,7 @@ canvas { display: block; width: 100%; height: 100%; }
   padding: 12px 0 0;
 }
 .day-tabs-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.14em;
   color: var(--text-tertiary);
@@ -1138,7 +1138,7 @@ canvas { display: block; width: 100%; height: 100%; }
   border: none;
   cursor: pointer;
   font-family: var(--mono);
-  font-size: 21px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--text-tertiary);
   position: relative;
@@ -1699,7 +1699,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .fc-mid { flex: 1; display: flex; flex-direction: row; align-items: center; padding: 0 10px; gap: 0; }
 .fc-duration { font-size: 11px; color: var(--text-tertiary); font-family: var(--mono); }
 .fc-line { display: flex; align-items: center; width: 100%; gap: 4px; }
-.fc-line-bar { flex: 1; height: 1px; background: var(--accent); }
+.fc-line-bar { flex: 1; height: 0; border-top: 1.5px dashed #D4AF37; }
 .fc-line svg path { fill: #D4AF37; }
 .fc-airports { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 4px; }
 .fc-code { font-size: 32px; font-weight: 700; color: var(--text-primary); font-family: var(--mono); display: block; letter-spacing: -1px; line-height: 1; }
@@ -1846,7 +1846,7 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 .hotel2-del:active { background: rgba(239,68,68,0.12); }
 .hotel2-del svg path { fill: var(--text-tertiary); }
-.hotel2-name { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; font-family: var(--mono); }
+.hotel2-name { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; font-family: var(--mono); color: #D4AF37; }
 .hotel2-addr {
   display: flex; align-items: center; gap: 5px;
   font-size: 13px; color: var(--text-tertiary); font-family: var(--mono);
@@ -1934,7 +1934,7 @@ canvas { display: block; width: 100%; height: 100%; }
   display: flex;
   align-items: center;
 }
-.hotel-name { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.hotel-name { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #D4AF37; }
 .hotel-name-en { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
 .hotel-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
 .hotel-tag {
