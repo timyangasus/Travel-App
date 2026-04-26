@@ -255,8 +255,7 @@ function renderBanner() {
       <div class="banner-gradient"></div>
       <!-- Right side: weather -->
       <div class="banner-lat-block">
-        <span class="banner-lat-text" id="banner-weather-temp">--°</span>
-        <span class="banner-weather-desc" id="banner-weather-desc">--</span>
+        <span class="banner-lat-text" id="banner-weather-temp"></span>
       </div>
       <!-- Bottom left: date + subtitle -->
       <div class="banner-text-area">
@@ -1765,11 +1764,8 @@ function clearAllData() {
       const res = await fetch(url);
       const data = await res.json();
       const temp = Math.round(data.current.temperature_2m);
-      const desc = getWeatherDesc(data.current.weathercode);
       const tempEl = document.getElementById('banner-weather-temp');
-      const descEl = document.getElementById('banner-weather-desc');
       if (tempEl) tempEl.textContent = temp + '°';
-      if (descEl) descEl.textContent = desc;
     } catch(e) {
       console.warn('Weather fetch failed:', e);
     }
