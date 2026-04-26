@@ -1707,8 +1707,7 @@ function clearAllData() {
     if (!_currentInfoSub) return;
     const idx = INFO_SUBS.indexOf(_currentInfoSub);
     if (idx === -1) return;
-    const nextIdx = idx + dir;
-    if (nextIdx < 0 || nextIdx >= INFO_SUBS.length) return;
+    const nextIdx = (idx + dir + INFO_SUBS.length) % INFO_SUBS.length;
     const nextName = INFO_SUBS[nextIdx];
     // 關掉目前的
     document.getElementById('screen-info-' + _currentInfoSub)?.classList.remove('active');
