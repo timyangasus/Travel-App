@@ -182,11 +182,6 @@ function renderDayTabs() {
   data.days.forEach((_, i) => {
     const b = document.createElement('button');
     b.className = 'day-tab' + (i === currentDay ? ' active' : '');
-    if (i === currentDay) {
-      b.style.cssText = 'width:40px;height:40px;padding:0;display:inline-flex;align-items:center;justify-content:center;';
-    } else {
-      b.style.cssText = '';
-    }
     b.textContent = i + 1;
     b.onclick = () => { currentDay = i; renderItinerary(); };
 
