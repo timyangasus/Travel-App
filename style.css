@@ -1111,12 +1111,13 @@ canvas { display: block; width: 100%; height: 100%; }
 .day-tabs-add-event {
   background: none;
   border: none;
-  font-size: 26px;
+  font-size: 30px;
+  font-weight: 300;
   color: #D4AF37;
   cursor: pointer;
   padding: 10px 4px 0;
   line-height: 1;
-  font-family: var(--mono);
+  font-family: var(--sans);
   transition: opacity 0.15s;
 }
 .day-tabs-add-event:active { opacity: 0.5; }
@@ -1420,9 +1421,9 @@ canvas { display: block; width: 100%; height: 100%; }
   gap: 10px;
   cursor: pointer;
   font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 500;
-  color: #1A1A1A;
+  font-size: 17px;
+  font-weight: 700;
+  color: #D4AF37;
   letter-spacing: -0.2px;
   transition: opacity 0.12s;
   padding: 36px 35px 31px;
@@ -2583,8 +2584,9 @@ canvas { display: block; width: 100%; height: 100%; }
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 18px 216px 12px 20px;
+  padding: 18px 52px 12px 20px;
   background: transparent;
+  overflow: hidden;
 }
 .banner-more-wrap {
   position: absolute;
@@ -2632,7 +2634,8 @@ canvas { display: block; width: 100%; height: 100%; }
   white-space: nowrap;
 }
 .banner-topbar-line {
-  flex: 1;
+  flex: 0 1 80px;
+  min-width: 20px;
   height: 1px;
   background: #1A1A1A;
 }
@@ -2642,9 +2645,8 @@ canvas { display: block; width: 100%; height: 100%; }
   color: #1A1A1A;
   white-space: nowrap;
   letter-spacing: 0.04em;
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
 }
 .banner-lat-block {
   position: absolute;
