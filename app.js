@@ -1741,62 +1741,18 @@ function clearAllData() {
 
 /* ─── Weather Fetch ─── */
 const WMO_DESC = {
-    0:'Sunny', 1:'Clear', 2:'Partly Cloudy', 3:'Overcast',
-    45:'Foggy', 48:'Icy Fog',
-    51:'Light Drizzle', 53:'Drizzle', 55:'Heavy Drizzle',
-    61:'Light Rain', 63:'Rainy', 65:'Heavy Rain',
-    71:'Light Snow', 73:'Snowy', 75:'Heavy Snow', 77:'Snow',
-    80:'Showers', 81:'Rainy', 82:'Heavy Showers',
-    85:'Snow Showers', 86:'Heavy Snow',
-    95:'Stormy', 96:'Thunder', 99:'Hail Storm',
-  };
+  0:'Sunny', 1:'Clear', 2:'Partly Cloudy', 3:'Overcast',
+  45:'Foggy', 48:'Icy Fog',
+  51:'Light Drizzle', 53:'Drizzle', 55:'Heavy Drizzle',
+  61:'Light Rain', 63:'Rainy', 65:'Heavy Rain',
+  71:'Light Snow', 73:'Snowy', 75:'Heavy Snow', 77:'Snow',
+  80:'Showers', 81:'Rainy', 82:'Heavy Showers',
+  85:'Snow Showers', 86:'Heavy Snow',
+  95:'Stormy', 96:'Thunder', 99:'Hail Storm',
+};
 
-  function getWeatherDesc(code) {
-    return WMO_DESC[code] || 'Cloudy';
-  }
-
-let _liveTemp = '';  // 即時溫度快取
-
-  // 把溫度顯示到 DOM
-function applyWeatherToDOM() {
-  const tempEl = document.getElementById('banner-weather-temp');
-  if (!tempEl) return;
-
-  // 1. 優先：已永久儲存的溫度（過去已記錄的天）
-  const stored = data.days[currentDay]?.weather;
-  if (stored) { tempEl.textContent = stored; return; }
-
-  // 2. 今天即時溫度
-  if (currentDay === _todayDayIndex() && _liveTemp) {
-    tempEl.textContent = _liveTemp; return;
-  }
-
-  // 3. 比對行程日期 vs forecast cache（未來7天）
-  const d = parseBannerDate(data.days[currentDay]?.banner?.date);
-  if (d) {
-    const key = _dateKey(d);
-    if (_forecastCache[key]) { tempEl.textContent = _forecastCache[key]; return; }
-  }
-
-  // 4. 超出預報範圍或無日期 → 空白
-  tempEl.textContent = '';
-}
-
-// 找今天對應的行程 index
-function _todayDayIndex() {
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  for (let i = 0; i < data.days.length; i++) {
-    const d = parseBannerDate(data.days[i].banner.date);
-    if (d) {
-      d.setHours(0,0,0,0);
-      if (d.getTime() === today.getTime()) return i;
-    }
-  }
-  return -1;
-}
-
-let _forecastCache = {}; // { 'YYYY-MM-DD': '24°' } 預報暫存，不寫 localStorage
+let _liveTemp = '';
+let _forecastCache = {};
 
 function _dateKey(dateObj) {
   const y = dateObj.getFullYear();
@@ -1805,55 +1761,87 @@ function _dateKey(dateObj) {
   return `${y}-${m}-${d}`;
 }
 
-async function fetchWeather(lat, lon) {
-    try {
-      // 一次抓：即時 + 未來7天日最高溫
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&daily=temperature_2m_max&temperature_unit=celsius&timezone=auto&forecast_days=7`;
-      const res = await fetch(url);
-      const json = await res.json();
-
-      // 即時溫度
-      const temp = Math.round(json.current.temperature_2m);
-      _liveTemp = temp + '°';
-
-      // 存進今天對應的行程天（永久），非行程日期就只存 _liveTemp 不寫 data
-      const todayIdx = _todayDayIndex();
-      if (todayIdx !== -1) {
-        if (!data.days[todayIdx].weather) {
-          data.days[todayIdx].weather = _liveTemp;
-          save();
-        }
-      }
-
-      // 未來預報 cache（只存 session，不寫 localStorage）
-      const dailyDates = json.daily?.time || [];
-      const dailyTemps = json.daily?.temperature_2m_max || [];
-      _forecastCache = {};
-      dailyDates.forEach((d, i) => {
-        _forecastCache[d] = Math.round(dailyTemps[i]) + '°';
-      });
-
-      applyWeatherToDOM();
-    } catch(e) {
-      console.warn('Weather fetch failed:', e);
+function _todayDayIndex() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  for (let i = 0; i < data.days.length; i++) {
+    const d = parseBannerDate(data.days[i].banner.date);
+    if (d) {
+      d.setHours(0, 0, 0, 0);
+      if (d.getTime() === today.getTime()) return i;
     }
   }
+  return -1;
+}
 
-function initWeather() {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-      () => {},
-      { timeout: 8000 }
-    );
+function applyWeatherToDOM() {
+  const tempEl = document.getElementById('banner-weather-temp');
+  if (!tempEl) return;
+
+  // 1. 已儲存的歷史溫度（永久）
+  const stored = data.days[currentDay]?.weather;
+  if (stored) { tempEl.textContent = stored; return; }
+
+  // 2. 今天即時溫度
+  if (currentDay === _todayDayIndex() && _liveTemp) {
+    tempEl.textContent = _liveTemp; return;
   }
 
-document.addEventListener('DOMContentLoaded', () => {
-    initWeather();
-    // 每30分鐘更新一次（只更新今天）
-    setInterval(initWeather, 30 * 60 * 1000);
-  });
+  // 3. 未來7天預報
+  const d = parseBannerDate(data.days[currentDay]?.banner?.date);
+  if (d) {
+    const key = _dateKey(d);
+    if (_forecastCache[key]) { tempEl.textContent = _forecastCache[key]; return; }
+  }
 
+  // 4. 空白
+  tempEl.textContent = '';
+}
+
+async function fetchWeather(lat, lon) {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&daily=temperature_2m_max&temperature_unit=celsius&timezone=auto&forecast_days=7`;
+    const res = await fetch(url);
+    const json = await res.json();
+
+    // 即時溫度
+    const temp = Math.round(json.current.temperature_2m);
+    _liveTemp = temp + '°';
+
+    // 存進今天對應的行程天
+    const todayIdx = _todayDayIndex();
+    if (todayIdx !== -1 && !data.days[todayIdx].weather) {
+      data.days[todayIdx].weather = _liveTemp;
+      save();
+    }
+
+    // 未來7天預報 cache
+    const dailyDates = json.daily?.time || [];
+    const dailyTemps = json.daily?.temperature_2m_max || [];
+    _forecastCache = {};
+    dailyDates.forEach((d, i) => {
+      _forecastCache[d] = Math.round(dailyTemps[i]) + '°';
+    });
+
+    applyWeatherToDOM();
+  } catch(e) {
+    console.warn('Weather fetch failed:', e);
+  }
+}
+
+function initWeather() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+    () => {},
+    { timeout: 8000 }
+  );
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initWeather();
+  setInterval(initWeather, 30 * 60 * 1000);
+});
 
 load();
 applyTheme(data.settings?.theme || 'light');
