@@ -1493,7 +1493,7 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 /* ─── Checklist (new) ─── */
 .cl-group { margin-bottom: 40px; }
-.cl-group:first-child { margin-top: 30px; }
+.cl-group:first-child { margin-top: 0; }
 .cl-group-header {
   display: flex;
   align-items: center;
@@ -2238,7 +2238,7 @@ canvas { display: block; width: 100%; height: 100%; }
   transition: opacity 0.15s;
   margin: 0 16px;
 }
-.sl-card:first-child { margin-top: 15px; }
+.sl-card:first-child { margin-top: 0; }
 .sl-card + .sl-card { margin-top: 15px; }
 .sl-card.sl-done { opacity: 0.45; }
 .sl-addr { color: var(--text-tertiary) !important; cursor: pointer; font-size: 12px; line-height: 1.5; }
