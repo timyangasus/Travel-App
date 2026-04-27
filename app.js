@@ -1759,48 +1759,51 @@ let _liveTemp = '';  // 即時溫度快取
 
   // 把溫度顯示到 DOM
 function applyWeatherToDOM() {
-    const tempEl = document.getElementById('banner-weather-temp');
-    if (!tempEl) return;
+  const tempEl = document.getElementById('banner-weather-temp');
+  if (!tempEl) return;
 
-    // 1. 優先：已永久儲存的溫度（過去已記錄的天）
-    const stored = data.days[currentDay]?.weather;
-    if (stored) { tempEl.textContent = stored; return; }
+  // 1. 優先：已永久儲存的溫度（過去已記錄的天）
+  const stored = data.days[currentDay]?.weather;
+  if (stored) { tempEl.textContent = stored; return; }
 
-    // 2. 今天即時溫度
-    if (currentDay === _todayDayIndex() && _liveTemp) {
-      tempEl.textContent = _liveTemp; return;
-    }
-
-    // 3. 比對行程日期 vs forecast cache（未來7天）
-    const d = parseBannerDate(data.days[currentDay]?.banner?.date);
-    if (d) {
-      const key = _dateKey(d);
-      if (_forecastCache[key]) { tempEl.textContent = _forecastCache[key]; return; }
-    }
-
-    // 4. 超出預報範圍或無日期 → 空白
-    tempEl.textContent = '';
+  // 2. 今天即時溫度
+  if (currentDay === _todayDayIndex() && _liveTemp) {
+    tempEl.textContent = _liveTemp; return;
   }
 
-  // 找今天對應的行程 index
+  // 3. 比對行程日期 vs forecast cache（未來7天）
+  const d = parseBannerDate(data.days[currentDay]?.banner?.date);
+  if (d) {
+    const key = _dateKey(d);
+    if (_forecastCache[key]) { tempEl.textContent = _forecastCache[key]; return; }
+  }
+
+  // 4. 超出預報範圍或無日期 → 空白
+  tempEl.textContent = '';
+}
+
+// 找今天對應的行程 index
 function _todayDayIndex() {
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    for (let i = 0; i < data.days.length; i++) {
-      const d = parseBannerDate(data.days[i].banner.date);
-      if (d) {
-        d.setHours(0,0,0,0);
-        if (d.getTime() === today.getTime()) return i;
-      }
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  for (let i = 0; i < data.days.length; i++) {
+    const d = parseBannerDate(data.days[i].banner.date);
+    if (d) {
+      d.setHours(0,0,0,0);
+      if (d.getTime() === today.getTime()) return i;
     }
-    return -1;
   }
+  return -1;
+}
 
 let _forecastCache = {}; // { 'YYYY-MM-DD': '24°' } 預報暫存，不寫 localStorage
 
 function _dateKey(dateObj) {
-    return dateObj.toISOString().slice(0, 10);
-  }
+  const y = dateObj.getFullYear();
+  const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const d = String(dateObj.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 
 async function fetchWeather(lat, lon) {
     try {
