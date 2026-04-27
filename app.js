@@ -1681,7 +1681,7 @@ function clearAllData() {
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    const el = document.getElementById('timeline-section');
+    const el = document.getElementById('screen-itinerary');
     if (!el) return;
     el.addEventListener('touchstart', onTouchStart, { passive: true });
     el.addEventListener('touchend', onTouchEnd, { passive: true });
@@ -1758,20 +1758,81 @@ function clearAllData() {
     return WMO_DESC[code] || 'Cloudy';
   }
 
-  let _cachedTemp = '';  // 快取溫度，renderBanner 後填回
+  let _liveTemp = '';  // 即時溫度快取
 
+  // 把溫度顯示到 DOM
   function applyWeatherToDOM() {
     const tempEl = document.getElementById('banner-weather-temp');
-    if (tempEl && _cachedTemp) tempEl.textContent = _cachedTemp;
+    if (!tempEl) return;
+
+    // 1. 優先：已永久儲存的溫度（過去已記錄的天）
+    const stored = data.days[currentDay]?.weather;
+    if (stored) { tempEl.textContent = stored; return; }
+
+    // 2. 今天即時溫度
+    if (currentDay === _todayDayIndex() && _liveTemp) {
+      tempEl.textContent = _liveTemp; return;
+    }
+
+    // 3. 比對行程日期 vs forecast cache（未來7天）
+    const d = parseBannerDate(data.days[currentDay]?.banner?.date);
+    if (d) {
+      const key = _dateKey(d);
+      if (_forecastCache[key]) { tempEl.textContent = _forecastCache[key]; return; }
+    }
+
+    // 4. 行程沒設日期，或超出預報範圍 → 空白
+    tempEl.textContent = '';
+  }
+
+  // 找今天對應的行程 index
+  function _todayDayIndex() {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    for (let i = 0; i < data.days.length; i++) {
+      const d = parseBannerDate(data.days[i].banner.date);
+      if (d) {
+        d.setHours(0,0,0,0);
+        if (d.getTime() === today.getTime()) return i;
+      }
+    }
+    return -1;
+  }
+
+  let _forecastCache = {}; // { 'YYYY-MM-DD': '24°' } 預報暫存，不寫 localStorage
+
+  function _dateKey(dateObj) {
+    return dateObj.toISOString().slice(0, 10);
   }
 
   async function fetchWeather(lat, lon) {
     try {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode&temperature_unit=celsius`;
+      // 一次抓：即時 + 未來7天日最高溫
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&daily=temperature_2m_max&temperature_unit=celsius&timezone=auto&forecast_days=7`;
       const res = await fetch(url);
-      const data = await res.json();
-      const temp = Math.round(data.current.temperature_2m);
-      _cachedTemp = temp + '°';
+      const json = await res.json();
+
+      // 即時溫度
+      const temp = Math.round(json.current.temperature_2m);
+      _liveTemp = temp + '°';
+
+      // 存進今天對應的行程天（永久），非行程日期就只存 _liveTemp 不寫 data
+      const todayIdx = _todayDayIndex();
+      if (todayIdx !== -1) {
+        if (!data.days[todayIdx].weather) {
+          data.days[todayIdx].weather = _liveTemp;
+          save();
+        }
+      }
+
+      // 未來預報 cache（只存 session，不寫 localStorage）
+      const dailyDates = json.daily?.time || [];
+      const dailyTemps = json.daily?.temperature_2m_max || [];
+      _forecastCache = {};
+      dailyDates.forEach((d, i) => {
+        _forecastCache[d] = Math.round(dailyTemps[i]) + '°';
+      });
+
       applyWeatherToDOM();
     } catch(e) {
       console.warn('Weather fetch failed:', e);
@@ -1787,7 +1848,7 @@ function clearAllData() {
     );
   }
 
-  // Hook renderBanner — 每次 banner 重繪後把快取溫度填回
+  // Hook renderBanner — 每次 banner 重繪後填回溫度
   const _origRenderBanner = renderBanner;
   window.renderBanner = function() {
     _origRenderBanner();
@@ -1796,7 +1857,7 @@ function clearAllData() {
 
   document.addEventListener('DOMContentLoaded', () => {
     initWeather();
-    // 每30分鐘更新一次
+    // 每30分鐘更新一次（只更新今天）
     setInterval(initWeather, 30 * 60 * 1000);
   });
 })();
