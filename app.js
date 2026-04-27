@@ -1778,8 +1778,7 @@ function applyWeatherToDOM() {
       if (_forecastCache[key]) { tempEl.textContent = _forecastCache[key]; return; }
     }
 
-    // 4. 非行程日期或超出預報範圍 → 顯示今天即時溫度（若有）
-    if (_liveTemp) { tempEl.textContent = _liveTemp; return; }
+    // 4. 超出預報範圍或無日期 → 空白
     tempEl.textContent = '';
   }
 
