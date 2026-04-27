@@ -1776,14 +1776,16 @@ function _todayDayIndex() {
 
 function applyWeatherToDOM() {
   const tempEl = document.getElementById('banner-weather-temp');
-  if (!tempEl) return;
+  if (!tempEl) { console.warn('[weather] tempEl not found'); return; }
 
   // 1. 已儲存的歷史溫度（永久）
   const stored = data.days[currentDay]?.weather;
+  console.log('[weather] day', currentDay, 'stored:', stored, 'liveTemp:', _liveTemp, 'cacheKeys:', Object.keys(_forecastCache));
   if (stored) { tempEl.textContent = stored; return; }
 
   // 2. 今天即時溫度
-  if (currentDay === _todayDayIndex() && _liveTemp) {
+  const todayIdx = _todayDayIndex();
+  if (currentDay === todayIdx && _liveTemp) {
     tempEl.textContent = _liveTemp; return;
   }
 
@@ -1791,6 +1793,7 @@ function applyWeatherToDOM() {
   const d = parseBannerDate(data.days[currentDay]?.banner?.date);
   if (d) {
     const key = _dateKey(d);
+    console.log('[weather] dateKey:', key, 'in cache:', !!_forecastCache[key]);
     if (_forecastCache[key]) { tempEl.textContent = _forecastCache[key]; return; }
   }
 
@@ -1838,13 +1841,13 @@ function initWeather() {
   );
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  initWeather();
-  setInterval(initWeather, 30 * 60 * 1000);
-});
+// DOMContentLoaded 在 inline script 已過，直接呼叫
+// 但要在 load() 之後執行，所以放在最底部
 
 load();
 applyTheme(data.settings?.theme || 'light');
+initWeather();
+setInterval(initWeather, 30 * 60 * 1000);
 
 // Auto-jump to today if within trip date range
 (function() {
