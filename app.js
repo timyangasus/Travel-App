@@ -1780,7 +1780,6 @@ function applyWeatherToDOM() {
 
   // 1. 已儲存的歷史溫度（永久）
   const stored = data.days[currentDay]?.weather;
-  console.log('[weather] day', currentDay, 'stored:', stored, 'liveTemp:', _liveTemp, 'cacheKeys:', Object.keys(_forecastCache));
   if (stored) { tempEl.textContent = stored; return; }
 
   // 2. 今天即時溫度
@@ -1789,24 +1788,35 @@ function applyWeatherToDOM() {
     tempEl.textContent = _liveTemp; return;
   }
 
-  // 3. 未來7天預報
-  const d = parseBannerDate(data.days[currentDay]?.banner?.date);
-  if (d) {
-    const key = _dateKey(d);
-    console.log('[weather] dateKey:', key, 'in cache:', !!_forecastCache[key]);
-    if (_forecastCache[key]) { tempEl.textContent = _forecastCache[key]; return; }
+  // 3. 未來7天預報 — 先用自己的日期，沒有就從第一天推算
+  let dayDate = parseBannerDate(data.days[currentDay]?.banner?.date);
+  if (!dayDate) {
+    // 找第一個有日期的天，往後推
+    for (let i = 0; i < data.days.length; i++) {
+      const anchor = parseBannerDate(data.days[i]?.banner?.date);
+      if (anchor) {
+        dayDate = new Date(anchor);
+        dayDate.setDate(dayDate.getDate() + (currentDay - i));
+        break;
+      }
+    }
+  }
+  if (dayDate) {
+    const key = _dateKey(dayDate);
+      if (_forecastCache[key]) { tempEl.textContent = _forecastCache[key]; return; }
   }
 
-  // 4. 空白
+  // 4. Fallback：顯示今天即時溫度
+  if (_liveTemp) { tempEl.textContent = _liveTemp; return; }
   tempEl.textContent = '';
 }
 
 async function fetchWeather(lat, lon) {
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&daily=temperature_2m_max&temperature_unit=celsius&timezone=auto&forecast_days=7`;
-    const res = await fetch(url);
+      const res = await fetch(url);
     const json = await res.json();
-
+    
     // 即時溫度
     const temp = Math.round(json.current.temperature_2m);
     _liveTemp = temp + '°';
