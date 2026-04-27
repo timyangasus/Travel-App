@@ -1740,8 +1740,7 @@ function clearAllData() {
 
 
 /* ─── Weather Fetch ─── */
-(function() {
-  const WMO_DESC = {
+const WMO_DESC = {
     0:'Sunny', 1:'Clear', 2:'Partly Cloudy', 3:'Overcast',
     45:'Foggy', 48:'Icy Fog',
     51:'Light Drizzle', 53:'Drizzle', 55:'Heavy Drizzle',
@@ -1756,10 +1755,10 @@ function clearAllData() {
     return WMO_DESC[code] || 'Cloudy';
   }
 
-  let _liveTemp = '';  // 即時溫度快取
+let _liveTemp = '';  // 即時溫度快取
 
   // 把溫度顯示到 DOM
-  function applyWeatherToDOM() {
+function applyWeatherToDOM() {
     const tempEl = document.getElementById('banner-weather-temp');
     if (!tempEl) return;
 
@@ -1779,12 +1778,13 @@ function clearAllData() {
       if (_forecastCache[key]) { tempEl.textContent = _forecastCache[key]; return; }
     }
 
-    // 4. 行程沒設日期，或超出預報範圍 → 空白
+    // 4. 非行程日期或超出預報範圍 → 顯示今天即時溫度（若有）
+    if (_liveTemp) { tempEl.textContent = _liveTemp; return; }
     tempEl.textContent = '';
   }
 
   // 找今天對應的行程 index
-  function _todayDayIndex() {
+function _todayDayIndex() {
     const today = new Date();
     today.setHours(0,0,0,0);
     for (let i = 0; i < data.days.length; i++) {
@@ -1797,13 +1797,13 @@ function clearAllData() {
     return -1;
   }
 
-  let _forecastCache = {}; // { 'YYYY-MM-DD': '24°' } 預報暫存，不寫 localStorage
+let _forecastCache = {}; // { 'YYYY-MM-DD': '24°' } 預報暫存，不寫 localStorage
 
-  function _dateKey(dateObj) {
+function _dateKey(dateObj) {
     return dateObj.toISOString().slice(0, 10);
   }
 
-  async function fetchWeather(lat, lon) {
+async function fetchWeather(lat, lon) {
     try {
       // 一次抓：即時 + 未來7天日最高溫
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&daily=temperature_2m_max&temperature_unit=celsius&timezone=auto&forecast_days=7`;
@@ -1837,7 +1837,7 @@ function clearAllData() {
     }
   }
 
-  function initWeather() {
+function initWeather() {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
@@ -1846,12 +1846,11 @@ function clearAllData() {
     );
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     initWeather();
     // 每30分鐘更新一次（只更新今天）
     setInterval(initWeather, 30 * 60 * 1000);
   });
-})();
 
 
 load();
