@@ -187,6 +187,7 @@ body {
 
 .tab-label {
   font-size: 10px;
+  font-family: 'SF Mono', 'Courier New', monospace;
   font-weight: 400;
   color: #9CA3AF;
   letter-spacing: -0.08px;
@@ -948,6 +949,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .tab-icon svg { width: 24px; height: 24px; display: block; }
 .tab-icon svg path { fill: #9CA3AF; }
 .tab-item.active .tab-icon svg path { fill: #000; }
+#tab-home .tab-icon svg { transform: scale(1.15); transform-origin: center; }
 
 /* ─── Screens ─── */
 
@@ -972,7 +974,7 @@ canvas { display: block; width: 100%; height: 100%; }
   position: relative;
   width: calc(100% - 64px);
   height: 72vw;
-  background: #0f2152;
+  background: #000000;
   overflow: visible;
   margin: 5px 0 0 0;
 }
@@ -1412,7 +1414,7 @@ canvas { display: block; width: 100%; height: 100%; }
   background: #EBEBEB;
   border: none;
   border-radius: 0;
-  margin: 46px auto 0;
+  margin: 26px auto 0;
   max-width: 100%;
   overflow: visible;
 }
@@ -1427,20 +1429,30 @@ canvas { display: block; width: 100%; height: 100%; }
   gap: 10px;
   cursor: pointer;
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: #D4AF37;
   letter-spacing: -0.2px;
   transition: opacity 0.12s;
-  padding: 36px 35px 31px;
+  padding: 30px 25px 25px;
 }
 .info-grid-btn:active { opacity: 0.5; }
 .info-grid-icon {
-  width: 81px;
-  height: 81px;
+  width: 75px;
+  height: 75px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.info-grid-icon svg {
+  width: 75px !important;
+  height: 75px !important;
+}
+
+/* Fill empty last cell white when 7 items */
+.info-grid::after {
+  content: '';
+  background: #fff;
 }
 [data-theme='dark'] .info-grid-btn { color: var(--text-primary); }
 .info-grid-icon svg path {
@@ -1484,6 +1496,8 @@ canvas { display: block; width: 100%; height: 100%; }
 #screen-info-shopping,
 #screen-info-ticket,
 #screen-info-notes { background: #fff; }
+
+#shopping-items { margin-top: 30px; }
 
 /* Checklist & Shopping */
 .checklist-add-row {
@@ -2238,7 +2252,7 @@ canvas { display: block; width: 100%; height: 100%; }
   transition: opacity 0.15s;
   margin: 0 16px;
 }
-.sl-card:first-child { margin-top: 35px; }
+.sl-card:first-child { margin-top: 0; }
 .sl-card + .sl-card { margin-top: 15px; }
 .sl-card.sl-done { opacity: 0.45; }
 .sl-addr { color: var(--text-tertiary) !important; cursor: pointer; font-size: 12px; line-height: 1.5; }
@@ -2723,4 +2737,206 @@ canvas { display: block; width: 100%; height: 100%; }
   color: #1A1A1A;
   font-size: 16px;
   font-weight: 400;
+}
+
+/* ═══════════════════════════════════════
+   HOME SCREEN
+═══════════════════════════════════════ */
+--accent: #C9A84C;
+
+#screen-home {
+  background: #fff;
+  padding-bottom: 0 !important;
+  font-family: 'SF Mono', 'SFMono-Regular', ui-monospace, 'Courier New', monospace;
+}
+
+#screen-home * {
+  font-family: 'SF Mono', 'SFMono-Regular', ui-monospace, 'Courier New', monospace;
+}
+
+.home-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 12px;
+  padding-top: calc(var(--safe-top) + 16px);
+}
+
+.home-brand {
+  font-family: 'SF Mono', 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1A1A1A;
+}
+
+.home-add-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+}
+.home-add-btn svg { fill: #C9A84C; }
+
+/* Year Tabs */
+.home-year-tabs {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  padding: 0 30px 25px;
+  margin-top: 30px;
+}
+
+.home-year-tab {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'SF Mono', 'Courier New', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: #BBBBBB;
+  padding: 0 0 5px;
+  border-bottom: 2.5px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.home-year-tab.active {
+  color: #1A1A1A;
+  border-bottom-color: #C9A84C;
+}
+
+/* Trip List */
+.home-trip-list { padding: 0; }
+
+.home-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #BBBBBB;
+  font-size: 14px;
+  font-family: 'SF Mono', 'Courier New', monospace;
+}
+
+/* Swipe wrapper */
+.home-trip-swipe-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.home-trip-delete-bg {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 100px;
+  background: #E53935;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.home-trip-delete-bg span {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Courier New', monospace;
+}
+
+/* top line + padding + image + padding + bottom line */
+.home-trip-row {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  background: #fff;
+  will-change: transform;
+}
+
+.home-trip-row-top-line { display: none; }
+
+.home-trip-list-topline {
+  height: 1.5px;
+  background: #1A1A1A;
+  margin: 0 30px 0 0;
+}
+
+.home-trip-row-bottom-line {
+  height: 1.5px;
+  background: #1A1A1A;
+  margin: 0 30px 0 0;
+}
+
+.home-trip-row-inner {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 11px 12px 11px 0;
+  gap: 4px;
+}
+
+/* Cover image: square, left side, flush left */
+.home-trip-cover {
+  width: 40vw;
+  max-width: 185px;
+  aspect-ratio: 4 / 3;
+  flex-shrink: 0;
+  background: #C9A84C;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+}
+
+.home-trip-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Text block: top aligned with image */
+.home-trip-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 0;
+}
+
+.home-trip-date {
+  font-family: 'SF Mono', 'Courier New', monospace;
+  font-size: 32px;
+  color: #C9A84C;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  margin-bottom: 2px;
+}
+
+.home-trip-name {
+  font-family: 'SF Mono', 'Courier New', monospace;
+  font-size: 32px;
+  font-weight: 750;
+  color: #1A1A1A;
+  line-height: 1.15;
+  letter-spacing: -0.3px;
+  word-break: break-all;
+  -webkit-font-smoothing: antialiased;
+}
+
+
+/* Info module checkbox — SVG always present, visibility toggles */
+.info-mod-cb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #BBBBBB;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  transition: border-color 0.15s, background 0.15s;
+}
+.info-mod-cb.checked {
+  border-color: #1A1A1A;
+  background: #1A1A1A;
 }

@@ -21,7 +21,6 @@ const EXPENSE_CATS = [
 /* ═══════════════════════════════════════
    DATA LAYER
 ═══════════════════════════════════════ */
-/* ─── ImgBB Upload ─── */
 const IMGBB_API_KEY = 'cfd268943c3eb02881f5526f3ddf3431';
 
 async function uploadToImgBB(file) {
@@ -47,25 +46,82 @@ function showUploadStatus(msg) {
   el.style.opacity = msg ? '1' : '0';
 }
 
-const KEY = 'travel_journal_v4';
-let data = {
-  days: [{ banner: { date: '', subtitle: '', photos: [] }, events: [] }],
-  expenses: [[]],
-  flights: [],
-  hotels: [],
-  settings: { tripName: '', budget: 0, currency: 'TWD', theme: 'light' }
-};
+/* ═══════════════════════════════════════
+   MULTI-TRIP DATA LAYER
+═══════════════════════════════════════ */
+const META_KEY    = 'travel_trace_meta';
+const OLD_KEY     = 'travel_journal_v4';
+const TRIP_PREFIX = 'travel_trace_trip_';
+
+/* meta: { trips: [ { id, name, startDate, endDate, currency, coverImg } ] } */
+let meta = { trips: [] };
+
+/* currently active trip data (same shape as before) */
+let data = null;
+let currentTripId = null;
 let currentDay = 0;
 let editingEventId = null;
 let _slideshowTimer = null;
-
-/* blob URL cache：key → objectURL，session 內有效 */
 const _blobCache = new Map();
 
-function load() {
+function genId() {
+  return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+}
+
+/* ─── Load meta list ─── */
+function loadMeta() {
   try {
-    const s = localStorage.getItem(KEY);
-    if (s) data = JSON.parse(s);
+    const s = localStorage.getItem(META_KEY);
+    if (s) meta = JSON.parse(s);
+    if (!meta.trips) meta.trips = [];
+  } catch(e) { meta = { trips: [] }; }
+
+  // migrate old single trip
+  migrateOldTrip();
+}
+
+function saveMeta() {
+  try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch(e) {}
+}
+
+function migrateOldTrip() {
+  const old = localStorage.getItem(OLD_KEY);
+  if (!old) return;
+  // already migrated?
+  const alreadyMigrated = meta.trips.some(t => t.id === 'migrated_v4');
+  if (alreadyMigrated) return;
+  try {
+    const oldData = JSON.parse(old);
+    const id = 'migrated_v4';
+    const tripName = oldData.settings?.tripName || 'USJ大阪の旅';
+    const tripDates = oldData.settings?.tripDates || '';
+    const { startDate, endDate } = parseTripDates(tripDates);
+    const coverImg = oldData.days?.[0]?.banner?.photos?.[0] || '';
+    // push to meta
+    meta.trips.unshift({
+      id, name: tripName,
+      startDate, endDate,
+      currency: oldData.settings?.currency || 'TWD',
+      coverImg
+    });
+    saveMeta();
+    // save trip data under new key
+    localStorage.setItem(TRIP_PREFIX + id, old);
+  } catch(e) {}
+}
+
+/* ─── Load a specific trip ─── */
+function loadTrip(id) {
+  currentTripId = id;
+  currentDay    = 0;
+  try {
+    const s = localStorage.getItem(TRIP_PREFIX + id);
+    if (s) {
+      data = JSON.parse(s);
+    } else {
+      data = freshTripData();
+    }
+    // Ensure all fields exist
     while (data.expenses.length < data.days.length) data.expenses.push([]);
     if (!data.flights)   data.flights   = [];
     if (!data.hotels)    data.hotels    = [];
@@ -78,11 +134,131 @@ function load() {
       if (!d.banner) d.banner = { date: '', subtitle: '', photos: [] };
       if (!d.banner.photos) d.banner.photos = [];
     });
-  } catch(e) {}
+  } catch(e) {
+    data = freshTripData();
+  }
+}
+
+function freshTripData() {
+  return {
+    days: [{ banner: { date: '', subtitle: '', photos: [] }, events: [] }],
+    expenses: [[]],
+    flights: [], hotels: [], tickets: [], checklist: [], shopping: [],
+    notes: '',
+    settings: { tripName: '', budget: 0, currency: 'TWD', theme: 'light' }
+  };
 }
 
 function save() {
-  try { localStorage.setItem(KEY, JSON.stringify(data)); } catch(e) {}
+  if (!currentTripId) return;
+  try { localStorage.setItem(TRIP_PREFIX + currentTripId, JSON.stringify(data)); } catch(e) {}
+  // sync meta from current trip settings
+  const trip = meta.trips.find(t => t.id === currentTripId);
+  if (trip) {
+    const firstPhoto = data.days?.[0]?.banner?.photos?.[0] || '';
+    if (firstPhoto) trip.coverImg = firstPhoto;
+    if (data.settings?.tripName) trip.name = data.settings.tripName;
+    if (data.settings?.tripDates) {
+      const { startDate, endDate } = _parseTripSheetDates(data.settings.tripDates);
+      if (startDate) trip.startDate = _cleanDate(startDate);
+      if (endDate)   trip.endDate   = _cleanDate(endDate);
+    }
+    if (data.settings?.currency) trip.currency = data.settings.currency;
+  }
+  saveMeta();
+}
+
+// legacy shim for old load() call at bottom of file
+function load() { /* no-op: replaced by loadMeta()+loadTrip() */ }
+
+/* ─── Parse "MM/DD-MM/DD" or "YYYY/MM/DD-YYYY/MM/DD" from settings ─── */
+function parseTripDates(str) {
+  if (!str) return { startDate: '', endDate: '' };
+  const parts = str.split('-');
+  return { startDate: parts[0]?.trim() || '', endDate: parts[1]?.trim() || '' };
+}
+
+/* ─── Date for Home list display: "MM/DD–MM/DD" ─── */
+function tripDateDisplay(trip) {
+  let s = trip.startDate || '';
+  let e = trip.endDate || '';
+
+  const mmdd = d => {
+    if (!d) return '';
+    d = d.replace(/[（(][^）)]*[）)]/g, '').trim();
+    const m4 = d.match(/\d{4}\/(\d{2})\/(\d{2})/);
+    if (m4) return m4[1] + '/' + m4[2];
+    const m2 = d.match(/(\d{2})\/(\d{2})/);
+    if (m2) return m2[1] + '/' + m2[2];
+    return '';
+  };
+
+  // If missing endDate, try to get from trip data
+  if (s && !e) {
+    try {
+      const raw = localStorage.getItem(TRIP_PREFIX + trip.id);
+      if (raw) {
+        const td = JSON.parse(raw);
+        const tripDates = td.settings?.tripDates || '';
+        if (tripDates) {
+          const parts = tripDates.split('–');
+          if (parts[1]) e = parts[1].trim();
+        }
+        if (!e) {
+          const dLast = td.days?.[td.days.length - 1]?.banner?.date || '';
+          if (dLast) e = dLast;
+        }
+      }
+    } catch(err) {}
+  }
+
+  if (s || e) {
+    const ms = mmdd(s), me = mmdd(e);
+    if (ms && me && ms !== me) return ms + '–' + me;
+    return ms || me;
+  }
+
+  // Full fallback
+  try {
+    const raw = localStorage.getItem(TRIP_PREFIX + trip.id);
+    if (raw) {
+      const td = JSON.parse(raw);
+      const tripDates = td.settings?.tripDates || '';
+      if (tripDates) {
+        const parts = tripDates.split('–');
+        return parts.map(p => mmdd(p.trim())).filter(Boolean).join('–');
+      }
+      const d0 = td.days?.[0]?.banner?.date || '';
+      const dLast = td.days?.[td.days.length - 1]?.banner?.date || '';
+      const fmt = d => { const m = d.match(/\d{4}\/(\d{2})\/(\d{2})/); return m ? m[1] + '/' + m[2] : ''; };
+      if (d0) return fmt(d0) + (dLast && dLast !== d0 ? '–' + fmt(dLast) : '');
+    }
+  } catch(err) {}
+  return '';
+}
+
+
+/* ─── Extract year from trip for year-tab grouping ─── */
+
+/* ─── Extract year from date string ─── */
+function tripYear(trip) {
+  const d = trip.startDate || trip.endDate || '';
+  // Match 4-digit year
+  const m = d.match(/(\d{4})/);
+  if (m) return parseInt(m[1]);
+  // Fallback: check if trip has stored tripDates with banner dates (migrated data)
+  // Try to read from trip data
+  try {
+    const raw = localStorage.getItem(TRIP_PREFIX + trip.id);
+    if (raw) {
+      const td = JSON.parse(raw);
+      // check banner date of day 0 for year
+      const bannerDate = td.days?.[0]?.banner?.date || '';
+      const bm = bannerDate.match(/(\d{4})/);
+      if (bm) return parseInt(bm[1]);
+    }
+  } catch(e) {}
+  return new Date().getFullYear();
 }
 
 /* ─── Utility ─── */
@@ -102,22 +278,499 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
   document.getElementById('screen-' + tab).classList.add('active');
   document.getElementById('tab-' + tab).classList.add('active');
+  // Hide tab bar on Home, show on all other screens
+  const tabBar = document.querySelector('.tab-bar');
+  if (tabBar) tabBar.style.display = tab === 'home' ? 'none' : '';
+  if (tab === 'home')     renderHome();
   if (tab === 'expense')  renderExpense();
   if (tab === 'info')     renderInfo();
   if (tab === 'settings') renderSettings();
 }
 
 /* ═══════════════════════════════════════
-   ITINERARY
+   HOME SYNC: pull meta from each trip's settings
 ═══════════════════════════════════════ */
+function syncMetaFromTrips() {
+  let changed = false;
+  (meta.trips || []).forEach(trip => {
+    try {
+      const raw = localStorage.getItem(TRIP_PREFIX + trip.id);
+      if (!raw) return;
+      const td = JSON.parse(raw);
+      const s = td.settings || {};
+
+      // Sync name
+      if (s.tripName && s.tripName !== trip.name) {
+        trip.name = s.tripName;
+        changed = true;
+      }
+
+      // Sync dates from settings.tripDates (YYYY/MM/DD–MM/DD)
+      if (s.tripDates) {
+        const { startDate, endDate } = _parseTripSheetDates(s.tripDates);
+        if (startDate && startDate !== trip.startDate) { trip.startDate = startDate; changed = true; }
+        if (endDate   && endDate   !== trip.endDate)   { trip.endDate   = endDate;   changed = true; }
+      }
+
+      // Sync currency
+      if (s.currency && s.currency !== trip.currency) {
+        trip.currency = s.currency;
+        changed = true;
+      }
+
+      // Sync cover from first day photo
+      const firstPhoto = td.days?.[0]?.banner?.photos?.[0];
+      if (firstPhoto && firstPhoto !== trip.coverImg) {
+        trip.coverImg = firstPhoto;
+        changed = true;
+      }
+    } catch(e) {}
+  });
+
+  if (changed) saveMeta();
+  return changed;
+}
+
+/* ─── Pull-to-refresh ─── */
+function initHomePullToRefresh() {
+  const screen = document.getElementById('screen-home');
+  const indicator = document.getElementById('home-pull-indicator');
+  const icon = document.getElementById('home-pull-icon');
+  if (!screen || !indicator) return;
+
+  let startY = 0, pulling = false, triggered = false;
+  const THRESHOLD = 70;
+
+  screen.addEventListener('touchstart', e => {
+    if (screen.scrollTop === 0) {
+      startY = e.touches[0].clientY;
+      pulling = true;
+      triggered = false;
+    }
+  }, { passive: true });
+
+  screen.addEventListener('touchmove', e => {
+    if (!pulling) return;
+    const dy = e.touches[0].clientY - startY;
+    if (dy <= 0) { pulling = false; return; }
+    const clamped = Math.min(dy, THRESHOLD * 1.5);
+    indicator.style.height = Math.min(clamped * 0.6, 44) + 'px';
+    indicator.style.opacity = Math.min(dy / THRESHOLD, 1);
+    icon.style.transform = `rotate(${Math.min(dy / THRESHOLD, 1) * 360}deg)`;
+    if (dy >= THRESHOLD && !triggered) triggered = true;
+  }, { passive: true });
+
+  screen.addEventListener('touchend', () => {
+    if (!pulling) return;
+    pulling = false;
+    indicator.style.height = '0';
+    indicator.style.opacity = '0.5';
+    icon.style.transform = 'rotate(0deg)';
+    if (triggered) {
+      syncMetaFromTrips();
+      renderHome();
+      showToast('已同步更新');
+    }
+  });
+}
+
+
+let _homeYear = null; // currently selected year tab
+let _tripSheetCurrency = 'TWD';
+
+function renderHome() {
+  // Init pull-to-refresh once
+  if (!renderHome._ptr) { renderHome._ptr = true; initHomePullToRefresh(); }
+  const trips = meta.trips || [];
+
+  // Collect years that have trips
+  const years = [...new Set(trips.map(tripYear))].sort((a, b) => a - b);
+  const now = new Date().getFullYear();
+  // Default to nearest future year, or last year if none future
+  if (_homeYear === null || !years.includes(_homeYear)) {
+    _homeYear = years.find(y => y >= now) || years[years.length - 1] || now;
+  }
+
+  // Render year tabs
+  const yearTabsEl = document.getElementById('home-year-tabs');
+  if (yearTabsEl) {
+    yearTabsEl.innerHTML = years.map(y =>
+      `<button class="home-year-tab${y === _homeYear ? ' active' : ''}" onclick="selectHomeYear(${y})">${y}</button>`
+    ).join('');
+  }
+
+  // Render trip list for selected year
+  renderHomeTripList();
+}
+
+function selectHomeYear(y) {
+  _homeYear = y;
+  renderHome();
+}
+
+function renderHomeTripList() {
+  const el = document.getElementById('home-trip-list');
+  if (!el) return;
+  const trips = (meta.trips || [])
+    .filter(t => tripYear(t) === _homeYear)
+    .sort((a, b) => {
+      const da = (a.startDate || '').replace(/[（(][^）)]*[）)]/g, '').trim();
+      const db = (b.startDate || '').replace(/[（(][^）)]*[）)]/g, '').trim();
+      return da.localeCompare(db);
+    });
+
+  if (!trips.length) {
+    el.innerHTML = `<div class="home-empty">點右上角 ＋ 新增行程</div>`;
+    return;
+  }
+
+  el.innerHTML = '<div class="home-trip-list-topline"></div>' + trips.map(trip => {
+    const dateStr = tripDateDisplay(trip) || '';
+    const hasImg = !!trip.coverImg;
+    const coverBg = hasImg
+      ? `background-image:url('${esc(trip.coverImg)}');background-size:cover;background-position:center`
+      : `background:#C9A84C`;
+    return `
+      <div class="home-trip-swipe-wrap" data-id="${trip.id}">
+        <div class="home-trip-delete-bg"><span>刪除</span></div>
+        <div class="home-trip-row">
+          <div class="home-trip-row-inner" onclick="openTrip('${trip.id}')">
+            <div class="home-trip-cover" style="${coverBg}" onclick="event.stopPropagation();openTripCoverPicker('${trip.id}')"></div>
+            <div class="home-trip-body">
+              <div class="home-trip-date">${esc(dateStr)}</div>
+              <div class="home-trip-name">${esc(trip.name || '未命名行程')}</div>
+            </div>
+          </div>
+          <div class="home-trip-row-bottom-line"></div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Bind swipe-to-delete
+  el.querySelectorAll('.home-trip-swipe-wrap').forEach(wrap => {
+    let startX = 0, curX = 0, swiping = false;
+    const row = wrap.querySelector('.home-trip-row');
+    const THRESHOLD = 80;
+
+    const onStart = e => {
+      startX = (e.touches ? e.touches[0].clientX : e.clientX);
+      swiping = true; curX = 0;
+      row.style.transition = 'none';
+    };
+    const onMove = e => {
+      if (!swiping) return;
+      const dx = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
+      if (dx > 0) return; // only left swipe
+      curX = dx;
+      row.style.transform = `translateX(${Math.max(dx, -120)}px)`;
+    };
+    const onEnd = () => {
+      if (!swiping) return;
+      swiping = false;
+      row.style.transition = 'transform 0.25s ease';
+      if (curX < -THRESHOLD) {
+        row.style.transform = 'translateX(-100px)';
+        wrap.querySelector('.home-trip-delete-bg').style.opacity = '1';
+        // confirm delete
+        const id = wrap.dataset.id;
+        const trip = meta.trips.find(t => t.id === id);
+        showConfirm('刪除行程', `確定刪除「${trip?.name || '此行程'}」？此操作無法復原。`, () => {
+          deleteTrip(id);
+        }, () => {
+          row.style.transform = 'translateX(0)';
+          wrap.querySelector('.home-trip-delete-bg').style.opacity = '0';
+        });
+      } else {
+        row.style.transform = 'translateX(0)';
+      }
+    };
+    wrap.addEventListener('touchstart', onStart, { passive: true });
+    wrap.addEventListener('touchmove', onMove, { passive: true });
+    wrap.addEventListener('touchend', onEnd);
+  });
+}
+
+function deleteTrip(id) {
+  meta.trips = meta.trips.filter(t => t.id !== id);
+  saveMeta();
+  try { localStorage.removeItem(TRIP_PREFIX + id); } catch(e) {}
+  if (currentTripId === id) { data = null; currentTripId = null; }
+  renderHome();
+}
+
+function openTrip(id) {
+  loadTrip(id);
+  // sync currency from meta to data.settings
+  const trip = meta.trips.find(t => t.id === id);
+  if (trip && data.settings) {
+    data.settings.currency = trip.currency || 'TWD';
+    data.settings.tripName = trip.name || '';
+  }
+  // Auto-jump to today
+  const today = new Date(); today.setHours(0,0,0,0);
+  let matched = false;
+  for (let i = 0; i < data.days.length; i++) {
+    const d = parseBannerDate(data.days[i].banner.date);
+    if (d) { d.setHours(0,0,0,0); if (d.getTime() === today.getTime()) { currentDay = i; matched = true; break; } }
+  }
+  if (!matched) currentDay = 0;
+
+  renderItinerary();
+  renderExpense();
+  renderSettings();
+  switchTab('itinerary');
+}
+
+/* ─── Trip Cover Picker ─── */
+function openTripCoverPicker(id) {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = async () => {
+    const file = inp.files[0]; if (!file) return;
+    showUploadStatus('上傳中...');
+    try {
+      const url = await uploadToImgBB(file);
+      const trip = meta.trips.find(t => t.id === id);
+      if (trip) { trip.coverImg = url; saveMeta(); }
+      // also update trip data day 0 photos if this is current trip
+      if (currentTripId === id && data) {
+        if (!data.days[0].banner.photos) data.days[0].banner.photos = [];
+        if (!data.days[0].banner.photos.includes(url)) data.days[0].banner.photos.unshift(url);
+        save();
+      }
+      renderHome();
+    } catch(err) { alert('上傳失敗：' + err.message); }
+    finally { showUploadStatus(''); }
+  };
+  inp.click();
+}
+
+/* ─── Trip Sheet ─── */
+let _tfCurrencyCode = 'TWD';
+
+function openTripSheet() {
+  _tfCurrencyCode = 'TWD';
+  document.getElementById('tf-name').value = '';
+  document.getElementById('tf-dates').value = '';
+  document.getElementById('tf-currency-display').textContent = 'NT$ 新台幣';
+  document.getElementById('modal-trip-sheet').classList.add('open');
+  setTimeout(() => document.getElementById('tf-name').focus(), 340);
+}
+
+function openTripCurrencySheet() {
+  document.getElementById('modal-trip-currency').classList.add('open');
+}
+
+function setTripCurrencySheet(code, symbol, label) {
+  _tfCurrencyCode = code;
+  document.getElementById('tf-currency-display').textContent = symbol + ' ' + label;
+  closeModal('modal-trip-currency');
+}
+
+function setTripCurrency(code, symbol, label) {
+  _tfCurrencyCode = code;
+  document.getElementById('tf-currency-display').textContent = symbol + ' ' + label;
+  document.getElementById('tf-currency-dropdown')?.classList.remove('open');
+}
+
+function fmtTripSheetDates(el) {
+  // Format: YYYY/MM/DD–MM/DD
+  // Input digits only, auto insert slashes and dash
+  const raw = el.value;
+  const digits = raw.replace(/\D/g, '').slice(0, 12);
+  let result = '';
+  if (digits.length <= 4) {
+    result = digits; // YYYY
+  } else if (digits.length <= 6) {
+    result = digits.slice(0,4) + '/' + digits.slice(4); // YYYY/MM
+  } else if (digits.length <= 8) {
+    result = digits.slice(0,4) + '/' + digits.slice(4,6) + '/' + digits.slice(6); // YYYY/MM/DD
+  } else if (digits.length <= 10) {
+    result = digits.slice(0,4) + '/' + digits.slice(4,6) + '/' + digits.slice(6,8) + '–' + digits.slice(8); // YYYY/MM/DD–MM
+  } else {
+    result = digits.slice(0,4) + '/' + digits.slice(4,6) + '/' + digits.slice(6,8) + '–' + digits.slice(8,10) + '/' + digits.slice(10,12); // YYYY/MM/DD–MM/DD
+  }
+  el.value = result;
+}
+
+function _cleanDate(d) {
+  if (!d) return '';
+  d = d.replace(/[（(][^）)]*[）)]/g, '').trim();
+  const m = d.match(/(\d{4}\/\d{2}\/\d{2})/);
+  return m ? m[1] : d;
+}
+
+function _parseTripSheetDates(raw) {
+  // Parse "YYYY/MM/DD–MM/DD" → { startDate, endDate, days }
+  const parts = raw.split('–');
+  const startStr = parts[0]?.trim() || '';
+  const endStr   = parts[1]?.trim() || '';
+  if (!startStr) return { startDate: '', endDate: '', days: 1 };
+
+  // Parse start: YYYY/MM/DD
+  const sm = startStr.match(/(\d{4})\/(\d{2})\/(\d{2})/);
+  if (!sm) return { startDate: startStr, endDate: endStr, days: 1 };
+  const startDate = new Date(parseInt(sm[1]), parseInt(sm[2])-1, parseInt(sm[3]));
+
+  if (!endStr) return { startDate: startStr, endDate: '', days: 1 };
+
+  // Parse end: MM/DD (same year)
+  const em = endStr.match(/(\d{2})\/(\d{2})/);
+  if (!em) return { startDate: startStr, endDate: endStr, days: 1 };
+  const endDate = new Date(parseInt(sm[1]), parseInt(em[1])-1, parseInt(em[2]));
+
+  // If end month < start month, assume next year
+  if (endDate < startDate) endDate.setFullYear(endDate.getFullYear() + 1);
+
+  const diffMs = endDate - startDate;
+  const days = Math.max(1, Math.round(diffMs / 86400000) + 1);
+
+  const fmt = d => `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+  return { startDate: fmt(startDate), endDate: fmt(endDate), days };
+}
+
+function saveTripSheet() {
+  const name = document.getElementById('tf-name').value.trim();
+  const datesRaw = document.getElementById('tf-dates').value.trim();
+  if (!name) { document.getElementById('tf-name').focus(); return; }
+
+  const { startDate, endDate, days } = _parseTripSheetDates(datesRaw);
+
+  const id = genId();
+  const newTrip = { id, name, startDate, endDate, currency: _tfCurrencyCode, coverImg: '' };
+  meta.trips.push(newTrip);
+  saveMeta();
+
+  // Create trip data with correct number of days
+  const tripData = freshTripData();
+  tripData.settings.tripName  = name;
+  tripData.settings.currency  = _tfCurrencyCode;
+  tripData.settings.tripDates = datesRaw;
+
+  // Generate day entries based on date range
+  tripData.days = [];
+  tripData.expenses = [];
+  const start = startDate ? new Date(startDate.replace(/\//g, '-')) : null;
+  for (let i = 0; i < days; i++) {
+    let dateStr = '';
+    if (start) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      const wd = ['日','一','二','三','四','五','六'][d.getDay()];
+      dateStr = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}（${wd}）`;
+    }
+    tripData.days.push({ banner: { date: dateStr, subtitle: '', photos: [] }, events: [] });
+    tripData.expenses.push([]);
+  }
+
+  localStorage.setItem(TRIP_PREFIX + id, JSON.stringify(tripData));
+  closeModal('modal-trip-sheet');
+  openTrip(id);
+  showToast(`行程已建立，共 ${days} 天`);
+}
+
+/* ═══════════════════════════════════════
+   INFO MODULES CUSTOMIZATION
+═══════════════════════════════════════ */
+const INFO_MODULE_DEFS = [
+  { id: 'flight',   label: 'Flight ticket' },
+  { id: 'hotel',    label: 'Hotel' },
+  { id: 'shopping', label: 'Shopping list' },
+  { id: 'ticket',   label: 'Tickets' },
+  { id: 'checklist',label: 'Checklist' },
+  { id: 'notes',    label: 'Notes' },
+  { id: 'map',      label: 'Map' },
+];
+
+const DEFAULT_MODULES = ['flight','hotel','shopping','ticket','checklist','notes'];
+
+function getInfoModules() {
+  if (!data) return DEFAULT_MODULES;
+  if (!data.settings.infoModules) data.settings.infoModules = [...DEFAULT_MODULES];
+  return data.settings.infoModules;
+}
+
+function renderInfoGrid() {
+  if (!data) return;
+  const modules = getInfoModules();
+  INFO_MODULE_DEFS.forEach(m => {
+    const btn = document.getElementById('info-btn-' + m.id);
+    if (btn) btn.style.display = modules.includes(m.id) ? '' : 'none';
+  });
+}
+
+function openInfoCustomSheet() {
+  const modules = getInfoModules();
+  const list = document.getElementById('info-custom-list');
+
+  if (!list.dataset.built) {
+    list.dataset.built = '1';
+    list.innerHTML = INFO_MODULE_DEFS.map(m => {
+      const checked = modules.includes(m.id);
+      return `<div class="fsheet-row" onclick="toggleInfoModule('${m.id}')" style="cursor:pointer">` +
+        `<span class="fsheet-label" style="font-size:18px;white-space:nowrap;font-weight:700;color:#1A1A1A">${m.label}</span>` +
+        `<span id="info-mod-check-${m.id}" class="info-mod-cb${checked ? ' checked' : ''}">` +
+          `<svg viewBox="0 0 10 10" width="10" height="10" style="visibility:${checked ? 'visible' : 'hidden'};display:block">` +
+            `<polyline points="1.5,5 4,8 8.5,2" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>` +
+          `</svg>` +
+        `</span>` +
+        `</div>`;
+    }).join('');
+  }
+
+  // Always sync visual state (handles switching trips)
+  INFO_MODULE_DEFS.forEach(m => {
+    const el = document.getElementById('info-mod-check-' + m.id);
+    if (!el) return;
+    const checked = modules.includes(m.id);
+    el.classList.toggle('checked', checked);
+    const svg = el.querySelector('svg');
+    if (svg) svg.style.visibility = checked ? 'visible' : 'hidden';
+  });
+
+  const modal = document.getElementById('modal-info-custom');
+  if (!modal.classList.contains('open')) modal.classList.add('open');
+}
+
+
+function toggleInfoModule(id) {
+  const modules = getInfoModules();
+  const idx = modules.indexOf(id);
+  if (idx > -1) {
+    if (modules.length <= 1) { showToast('至少保留一個項目'); return; }
+    modules.splice(idx, 1);
+  } else {
+    modules.push(id);
+  }
+  data.settings.infoModules = modules;
+  const checked = modules.includes(id);
+  const el = document.getElementById('info-mod-check-' + id);
+  if (el) {
+    el.dataset.checked = checked;
+    el.classList.toggle('checked', checked);
+    const svg = el.querySelector('svg');
+    if (svg) svg.style.visibility = checked ? 'visible' : 'hidden';
+  }
+}
+
+
+function saveInfoModules() {
+  save();
+  renderInfoGrid();
+  closeModal('modal-info-custom');
+  showToast('已更新');
+}
+
+
 function renderItinerary() {
+  if (!data) return;
   renderDayTabs();
   renderBanner();
   renderTimeline();
 }
 
 /* ─── Custom Confirm Dialog ─── */
-function showConfirm(title, msg, onOk) {
+function showConfirm(title, msg, onOk, onCancel) {
   let el = document.getElementById('app-confirm');
   if (!el) {
     el = document.createElement('div');
@@ -140,8 +793,8 @@ function showConfirm(title, msg, onOk) {
   const cancel = document.getElementById('confirm-cancel');
   const close  = () => el.classList.remove('show');
   ok.onclick     = () => { close(); onOk(); };
-  cancel.onclick = () => close();
-  el.onclick     = (e) => { if (e.target === el) close(); };
+  cancel.onclick = () => { close(); onCancel && onCancel(); };
+  el.onclick     = (e) => { if (e.target === el) { close(); onCancel && onCancel(); } };
 }
 
 
@@ -647,6 +1300,7 @@ const CATS = ['餐飲', '交通', '購物', '住宿', '票券', '其他'];
 let expenseDay = 0;
 
 function renderExpense() {
+  if (!data) return;
   expenseDay = Math.min(expenseDay, data.days.length - 1);
   renderExpenseDayTabs();
   renderExpenseList();
@@ -722,7 +1376,7 @@ function deleteExpense(id) {
    INFO — HUB + SUB SCREENS
 ═══════════════════════════════════════ */
 function renderInfo() {
-  // hub only, sub-screens render on open
+  renderInfoGrid();
 }
 
 function openInfoSub(name) {
@@ -1142,6 +1796,18 @@ function openFlightSheet(editId) {
     if (f) {
       fields.forEach(k => { const el = document.getElementById('ff-'+k); if (el) el.value = f[k]||''; });
     }
+  } else if (data.flights && data.flights.length > 0 && data.flights.length % 2 === 1) {
+    // Odd count = adding an even-numbered flight (2nd, 4th...) → swap last flight's from/to
+    const last = data.flights[data.flights.length - 1];
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    set('ff-airline',      last.airline);
+    set('ff-fromCode',     last.toCode);
+    set('ff-fromName',     last.toName);
+    set('ff-fromTerminal', last.toTerminal);
+    set('ff-toCode',       last.fromCode);
+    set('ff-toName',       last.fromName);
+    set('ff-toTerminal',   last.fromTerminal);
+    // baggage, flightNo, times, seat left blank
   }
   const title = document.getElementById('flight-sheet-title');
   if (title) title.textContent = editId ? '編輯機票' : '新增機票';
@@ -1414,6 +2080,11 @@ function renderHotelCards() {
 ═══════════════════════════════════════ */
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
+  // Reset info-custom-list built flag so it rebuilds fresh next open (different trip may have different modules)
+  if (id === 'modal-info-custom') {
+    const list = document.getElementById('info-custom-list');
+    if (list) delete list.dataset.built;
+  }
 }
 
 document.querySelectorAll('.modal-overlay').forEach(o => {
@@ -1436,6 +2107,7 @@ const CURRENCIES = [
 ];
 
 function renderSettings() {
+  if (!data) return;
   const s = data.settings;
   const nameEl = document.getElementById('set-trip-name');
   if (nameEl) nameEl.value = s.tripName || '';
@@ -1539,25 +2211,31 @@ document.addEventListener('click', (e) => {
 });
 
 function fmtTripDates(el) {
-  const digits = el.value.replace(/\D/g, '').slice(0, 8);
-  const fmt = (d4) => {
-    if (d4.length < 3) return d4.slice(0,2) + (d4.length === 2 ? '/' : '');
-    const mo = d4.slice(0,2), dy = d4.slice(2,4);
-    if (d4.length < 4) return mo + '/' + dy;
-    const dt = new Date(new Date().getFullYear(), parseInt(mo)-1, parseInt(dy));
-    const wd = ['日','一','二','三','四','五','六'][dt.getDay()];
-    return mo + '/' + dy + '（' + wd + '）';
-  };
+  // Format: YYYY/MM/DD–MM/DD (same as trip sheet)
+  const digits = el.value.replace(/\D/g, '').slice(0, 12);
+  let result = '';
   if (digits.length <= 4) {
-    el.value = fmt(digits);
+    result = digits;
+  } else if (digits.length <= 6) {
+    result = digits.slice(0,4) + '/' + digits.slice(4);
+  } else if (digits.length <= 8) {
+    result = digits.slice(0,4) + '/' + digits.slice(4,6) + '/' + digits.slice(6);
+  } else if (digits.length <= 10) {
+    result = digits.slice(0,4) + '/' + digits.slice(4,6) + '/' + digits.slice(6,8) + '–' + digits.slice(8);
   } else {
-    el.value = fmt(digits.slice(0,4)) + '-' + fmt(digits.slice(4,8));
+    result = digits.slice(0,4) + '/' + digits.slice(4,6) + '/' + digits.slice(6,8) + '–' + digits.slice(8,10) + '/' + digits.slice(10,12);
   }
+  el.value = result;
 }
 
 function saveSettings() {
+  if (!data) return;
   data.settings.tripName  = document.getElementById('set-trip-name')?.value.trim() || '';
   data.settings.tripDates = document.getElementById('set-trip-dates')?.value.trim() || '';
+  // sync back to meta
+  const trip = meta.trips.find(t => t.id === currentTripId);
+  if (trip) trip.name = data.settings.tripName;
+  saveMeta();
   save();
   renderBanner();
 }
@@ -1586,14 +2264,31 @@ function getCurrencySymbol() {
 }
 
 function exportJSON() {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  // Pack meta + all trip data into one export
+  const allTrips = {};
+  (meta.trips || []).forEach(trip => {
+    try {
+      const raw = localStorage.getItem(TRIP_PREFIX + trip.id);
+      if (raw) allTrips[trip.id] = JSON.parse(raw);
+    } catch(e) {}
+  });
+
+  const exportData = {
+    _version: 2,
+    meta: meta,
+    trips: allTrips,
+    // Also include current trip data for backwards compat
+    currentTripId: currentTripId,
+  };
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = `travel-journal-${Date.now()}.json`;
+  a.download = `travel-trace-${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast('已匯出 JSON');
+  showToast(`已匯出 ${(meta.trips||[]).length} 筆行程`);
 }
 
 function importJSON(input) {
@@ -1603,25 +2298,55 @@ function importJSON(input) {
   reader.onload = (e) => {
     try {
       const imported = JSON.parse(e.target.result);
-      if (!imported.days) throw new Error('格式錯誤');
-      showConfirm('匯入資料', '現有資料將被覆蓋，確定繼續？', () => {
-        data = imported;
-        if (!data.settings) data.settings = { tripName: '', budget: 0, currency: 'TWD', theme: 'light' };
-        // 清除無效的 blob-key（session 已重置，blob URL 失效）
-        // 保留 image/ 路徑的預設圖
-        data.days.forEach((d, i) => {
-          if (!d.banner) d.banner = { date: '', subtitle: '', photos: [] };
-          if (!d.banner.photos) d.banner.photos = [];
-          // 移除 blob-key 開頭的（session 間無效），保留一般路徑
-          d.banner.photos = d.banner.photos.filter(p => p && !p.startsWith('blob-key:'));
+
+      // v2 format: has meta + trips
+      if (imported._version === 2 && imported.meta) {
+        showConfirm('匯入資料', `將匯入 ${(imported.meta.trips||[]).length} 筆行程，現有資料將被覆蓋，確定繼續？`, () => {
+          // Restore meta
+          meta = imported.meta;
+          if (!meta.trips) meta.trips = [];
+          saveMeta();
+
+          // Restore each trip
+          Object.entries(imported.trips || {}).forEach(([id, tripData]) => {
+            localStorage.setItem(TRIP_PREFIX + id, JSON.stringify(tripData));
+          });
+
+          // Load first trip or last active
+          const firstId = imported.currentTripId || meta.trips[0]?.id;
+          if (firstId) {
+            loadTrip(firstId);
+            renderItinerary();
+            renderExpense();
+            renderSettings();
+          }
+          switchTab('home');
+          showToast('匯入成功');
         });
-        save();
-        renderItinerary();
-        renderExpense();
-        renderSettings();
-        showToast('匯入成功');
-      });
-    } catch {
+        return;
+      }
+
+      // v1 legacy format: single trip (has days)
+      if (imported.days) {
+        showConfirm('匯入資料', '現有資料將被覆蓋，確定繼續？', () => {
+          data = imported;
+          if (!data.settings) data.settings = { tripName: '', budget: 0, currency: 'TWD', theme: 'light' };
+          data.days.forEach(d => {
+            if (!d.banner) d.banner = { date: '', subtitle: '', photos: [] };
+            if (!d.banner.photos) d.banner.photos = [];
+            d.banner.photos = d.banner.photos.filter(p => p && !p.startsWith('blob-key:'));
+          });
+          save();
+          renderItinerary();
+          renderExpense();
+          renderSettings();
+          showToast('匯入成功');
+        });
+        return;
+      }
+
+      showToast('檔案格式錯誤');
+    } catch(err) {
       showToast('檔案格式錯誤');
     }
   };
@@ -1630,14 +2355,11 @@ function importJSON(input) {
 }
 
 function clearAllData() {
-  showConfirm('清除所有資料', '所有行程、帳單、資訊將永久刪除。', () => {
-    data = {
-      days: [{ banner: { date: '', subtitle: '', photos: [] }, events: [] }],
-      expenses: [[]],
-      flights: [],
-      hotels: [],
-      settings: { tripName: '', budget: 0, currency: 'TWD', theme: 'light' }
-    };
+  showConfirm('清除此行程資料', '此行程所有行程、帳單、資訊將永久刪除。', () => {
+    if (!currentTripId) return;
+    data = freshTripData();
+    const trip = meta.trips.find(t => t.id === currentTripId);
+    if (trip) { data.settings.tripName = trip.name; data.settings.currency = trip.currency || 'TWD'; }
     currentDay  = 0;
     expenseDay  = 0;
     save();
@@ -1741,44 +2463,28 @@ function clearAllData() {
 
 /* ─── Weather Fetch ─── */
 const WMO_DESC = {
-  0:'Sunny', 1:'Clear', 2:'Partly Cloudy', 3:'Overcast',
-  45:'Foggy', 48:'Icy Fog',
-  51:'Light Drizzle', 53:'Drizzle', 55:'Heavy Drizzle',
-  61:'Light Rain', 63:'Rainy', 65:'Heavy Rain',
-  71:'Light Snow', 73:'Snowy', 75:'Heavy Snow', 77:'Snow',
-  80:'Showers', 81:'Rainy', 82:'Heavy Showers',
-  85:'Snow Showers', 86:'Heavy Snow',
-  95:'Stormy', 96:'Thunder', 99:'Hail Storm',
-};
+    0:'Sunny', 1:'Clear', 2:'Partly Cloudy', 3:'Overcast',
+    45:'Foggy', 48:'Icy Fog',
+    51:'Light Drizzle', 53:'Drizzle', 55:'Heavy Drizzle',
+    61:'Light Rain', 63:'Rainy', 65:'Heavy Rain',
+    71:'Light Snow', 73:'Snowy', 75:'Heavy Snow', 77:'Snow',
+    80:'Showers', 81:'Rainy', 82:'Heavy Showers',
+    85:'Snow Showers', 86:'Heavy Snow',
+    95:'Stormy', 96:'Thunder', 99:'Hail Storm',
+  };
 
-let _liveTemp = '';
-let _forecastCache = {};
-
-function _dateKey(dateObj) {
-  const y = dateObj.getFullYear();
-  const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-  const d = String(dateObj.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
-function _todayDayIndex() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  for (let i = 0; i < data.days.length; i++) {
-    const d = parseBannerDate(data.days[i].banner.date);
-    if (d) {
-      d.setHours(0, 0, 0, 0);
-      if (d.getTime() === today.getTime()) return i;
-    }
+  function getWeatherDesc(code) {
+    return WMO_DESC[code] || 'Cloudy';
   }
-  return -1;
-}
 
+let _liveTemp = '';  // 即時溫度快取
+
+  // 把溫度顯示到 DOM
 function applyWeatherToDOM() {
   const tempEl = document.getElementById('banner-weather-temp');
-  if (!tempEl) { console.warn('[weather] tempEl not found'); return; }
+  if (!tempEl) return;
 
-  // 1. 已儲存的歷史溫度（永久）
+  // 1. 優先：已永久儲存的溫度
   const stored = data.days[currentDay]?.weather;
   if (stored) { tempEl.textContent = stored; return; }
 
@@ -1788,10 +2494,9 @@ function applyWeatherToDOM() {
     tempEl.textContent = _liveTemp; return;
   }
 
-  // 3. 未來7天預報 — 先用自己的日期，沒有就從第一天推算
+  // 3. 未來7天預報 — 先用自己的日期，沒有就從第一個有日期的天推算
   let dayDate = parseBannerDate(data.days[currentDay]?.banner?.date);
   if (!dayDate) {
-    // 找第一個有日期的天，往後推
     for (let i = 0; i < data.days.length; i++) {
       const anchor = parseBannerDate(data.days[i]?.banner?.date);
       if (anchor) {
@@ -1803,7 +2508,7 @@ function applyWeatherToDOM() {
   }
   if (dayDate) {
     const key = _dateKey(dayDate);
-      if (_forecastCache[key]) { tempEl.textContent = _forecastCache[key]; return; }
+    if (_forecastCache[key]) { tempEl.textContent = _forecastCache[key]; return; }
   }
 
   // 4. Fallback：顯示今天即時溫度
@@ -1811,72 +2516,85 @@ function applyWeatherToDOM() {
   tempEl.textContent = '';
 }
 
-async function fetchWeather(lat, lon) {
-  try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&daily=temperature_2m_max&temperature_unit=celsius&timezone=auto&forecast_days=7`;
-      const res = await fetch(url);
-    const json = await res.json();
-    
-    // 即時溫度
-    const temp = Math.round(json.current.temperature_2m);
-    _liveTemp = temp + '°';
-
-    // 存進今天對應的行程天
-    const todayIdx = _todayDayIndex();
-    if (todayIdx !== -1 && !data.days[todayIdx].weather) {
-      data.days[todayIdx].weather = _liveTemp;
-      save();
-    }
-
-    // 未來7天預報 cache
-    const dailyDates = json.daily?.time || [];
-    const dailyTemps = json.daily?.temperature_2m_max || [];
-    _forecastCache = {};
-    dailyDates.forEach((d, i) => {
-      _forecastCache[d] = Math.round(dailyTemps[i]) + '°';
-    });
-
-    applyWeatherToDOM();
-  } catch(e) {
-    console.warn('Weather fetch failed:', e);
-  }
-}
-
-function initWeather() {
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(
-    pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-    () => {},
-    { timeout: 8000 }
-  );
-}
-
-// DOMContentLoaded 在 inline script 已過，直接呼叫
-// 但要在 load() 之後執行，所以放在最底部
-
-load();
-applyTheme(data.settings?.theme || 'light');
-initWeather();
-setInterval(initWeather, 30 * 60 * 1000);
-
-// Auto-jump to today if within trip date range
-(function() {
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  let matched = false;
-  for (let i = 0; i < data.days.length; i++) {
-    const d = parseBannerDate(data.days[i].banner.date);
-    if (d) {
-      d.setHours(0,0,0,0);
-      if (d.getTime() === today.getTime()) {
-        currentDay = i;
-        matched = true;
-        break;
+  // 找今天對應的行程 index
+function _todayDayIndex() {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    for (let i = 0; i < data.days.length; i++) {
+      const d = parseBannerDate(data.days[i].banner.date);
+      if (d) {
+        d.setHours(0,0,0,0);
+        if (d.getTime() === today.getTime()) return i;
       }
     }
+    return -1;
   }
-  if (!matched) currentDay = 0;
-})();
 
-renderItinerary();
-renderExpense();
+let _forecastCache = {}; // { 'YYYY-MM-DD': '24°' } 預報暫存，不寫 localStorage
+
+function _dateKey(dateObj) {
+  const y = dateObj.getFullYear();
+  const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const d = String(dateObj.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+async function fetchWeather(lat, lon) {
+    try {
+      // 一次抓：即時 + 未來7天日最高溫
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&daily=temperature_2m_max&temperature_unit=celsius&timezone=auto&forecast_days=7`;
+      const res = await fetch(url);
+      const json = await res.json();
+
+      // 即時溫度
+      const temp = Math.round(json.current.temperature_2m);
+      _liveTemp = temp + '°';
+
+      // 存進今天對應的行程天（永久），非行程日期就只存 _liveTemp 不寫 data
+      const todayIdx = _todayDayIndex();
+      if (todayIdx !== -1) {
+        if (!data.days[todayIdx].weather) {
+          data.days[todayIdx].weather = _liveTemp;
+          save();
+        }
+      }
+
+      // 未來預報 cache（只存 session，不寫 localStorage）
+      const dailyDates = json.daily?.time || [];
+      const dailyTemps = json.daily?.temperature_2m_max || [];
+      _forecastCache = {};
+      dailyDates.forEach((d, i) => {
+        _forecastCache[d] = Math.round(dailyTemps[i]) + '°';
+      });
+
+      applyWeatherToDOM();
+    } catch(e) {
+      console.warn('Weather fetch failed:', e);
+    }
+  }
+
+function initWeather() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+      () => {},
+      { timeout: 8000 }
+    );
+  }
+
+document.addEventListener('DOMContentLoaded', () => {
+    initWeather();
+    // 每30分鐘更新一次（只更新今天）
+    setInterval(initWeather, 30 * 60 * 1000);
+  });
+
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+loadMeta();
+applyTheme('light');
+
+// Start on Home screen
+switchTab('home');
+
